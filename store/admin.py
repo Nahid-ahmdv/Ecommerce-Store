@@ -6,9 +6,11 @@ from .models import Category, Product
 @admin.register(Category) #This decorator is gonna tell Django that we want to register 'Category' model with the Django admin site, linking it to the 'CategoryAdmin' class, allowing it to be managed through the admin interface. in the class below we add some additional information.
 class CategoryAdmin(admin.ModelAdmin): #This defines a custom admin class for the 'Category' model, inheriting from 'admin.ModelAdmin'. This allows for customization of how the model is displayed in the admin area.
     #in the following lines I'm gonna tell Django that I want to display things in a very specific way in my admin area:
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'get_products']
     prepopulated_fields = {'slug': ('name',)}#پر می‌شود slug وقتی یک کتگوری بخواهیم وارد کنیم، به محض وارد کردن اسمش خودبه‌خود فیلد مربوط به #This attribute allows automatic generation of certain fields based on other fields. Here, it automatically populates the 'slug' field based on the value entered in the 'name' field.
-
+    def get_products(self, obj):
+        return obj.product.count()
+    get_products.short_description = 'Number of Products'
 
 @admin.register(Product) #This decorator registers the 'Product' model with a custom admin class, 'ProductAdmin', which defines how this model will be displayed and interacted with in the admin panel.
 class ProductAdmin(admin.ModelAdmin):

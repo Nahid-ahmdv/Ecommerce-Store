@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User #This is the user model that Django automatically builds.
 from django.urls import reverse
 # Create your models here.
+class ProductManager(models.Manager): #This is a custom manager
+    def get_queryset(self):
+        return super(ProductManager, self).get_queryset().filter(is_active=True)
 class Category(models.Model): #we're extending from 'models.Model'. That's gonna provide us access to kind of the functionality that we're gonna need to build and describe a model.
     #things we need to record about a category:
     name = models.CharField(max_length=255, db_index=True) #the datatype of our 'name' field is character field. 'db_index=True' is used to create an index on that field in the database. 
@@ -29,9 +32,9 @@ class Category(models.Model): #we're extending from 'models.Model'. That's gonna
     
 
 class Product(models.Model):
-    category = models.ForeignKey(Category, related_name='product', on_delete=models.CASCADE) #by defining this foreign key field we build a link between
+    category = models.ForeignKey(Category, related_name='product', on_delete=models.CASCADE) #by defining this foreign key field we build a link between these two tables.
     '''
-    class Product(models.Model)::
+    class Product(models.Model):
         This line defines a new Django model called 'Product', which inherits from 'models.Model'. This inheritance means that 'Product' will have all the functionalities provided by Django’s ORM (Object-Relational Mapping) system, allowing you to interact with the database easily.
     category = models.ForeignKey(...):
         The category field is defined as a foreign key. A foreign key is a field that creates a many-to-one relationship between two models. In this case, each product can be associated with one category, but each category can have multiple products.
@@ -94,18 +97,18 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True) #There might be some products that aren't actually active to buy, maybe for example you've run out of stock.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = models.Manager() #default manager
+    products = ProductManager() #custom manager
     '''
     If you set 'auto_now=True', every time you save an instance of that model, the timestamp will update.
     If you set 'auto_now_add=True', it will only set the timestamp once at creation, and any subsequent saves will not affect this field.
     '''
-    # objects = models.Manager()
-    # products = ProductManager()
     class Meta:
         verbose_name_plural = 'Products' #unnecessary
         ordering = ('-created_at',)  #when we return all the data from 'Product' table we can specify what order we want that data to be in. Here we're ordering our list that gets returned from the database in descending order. It means that for example the last item that is added to the database is shown first.
 
     def get_absolute_url(self):
-        return reverse('store:product_detail', args=[self.slug])
+        return reverse('store:product_detail', args=[self.slug]) #the name 'store' is the app_name we wrote in urls.py file for a quick reference point to the 'urlpatterns' we wrote there, and 'product_detail' is the actual url name path, so 'store:product_detail' is the url that we want to use.
 
     def __str__(self):
         return self.title
