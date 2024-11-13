@@ -1,6 +1,9 @@
+from django.contrib.auth.models import \
+    User  # This is the user model that Django automatically builds.
 from django.db import models
-from django.contrib.auth.models import User #This is the user model that Django automatically builds.
 from django.urls import reverse
+
+
 # Create your models here.
 class ProductManager(models.Manager): #This is a custom manager
     def get_queryset(self):

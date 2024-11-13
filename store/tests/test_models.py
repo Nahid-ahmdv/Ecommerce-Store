@@ -1,7 +1,10 @@
-from django.test import TestCase
-from store.models import Category, Product
-from django.urls import reverse
 from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import reverse
+
+from store.models import Category, Product
+
+
 #when we run tests, we run tests on a separate database; so we've made a database already (.coverage) we don't run tests on our production (main) database.
 class TestCategoriesModel(TestCase): #This class will contain tests related to the 'Category' model.
 
@@ -25,7 +28,7 @@ class TestCategoriesModel(TestCase): #This class will contain tests related to t
 #we can now do the same thing to our 'Product' model, but for 'Product' model it is a little bit more complicated because it has more fields. 
 class TestProductsModel(TestCase): #we create a new class here = a new set of tests.
     def setUp(self):
-        Category.objects.create(name='django', slug='django') #remember if we're gonna build a product we're gonna need some categories to actually connect to because we're using the foreign key.
+        Category.objects.create(name='django', slug='django') #remember if we're gonna build a product we're gonna need some categories and a user to actually connect to because we're using them as foreign keys (so we can't build a product without the foreign key dependencies (category and user)).
         User.objects.create(username='admin')
         self.data1 = Product.objects.create(category_id=1, title='django beginners', created_by_id=1,
                                             slug='django-beginners', price='20.00', image='django')

@@ -1,6 +1,10 @@
 #This is where l start to connect everything up now in my project.
-from django.shortcuts import get_object_or_404, render  #If data doesn't get retrieved, we're gonna return a 404.
-from .models import Category, Product #I'm working with models so I need to bring the models in so I have access to them.
+from django.shortcuts import (  # If data doesn't get retrieved, we're gonna return a 404.
+    get_object_or_404, render)
+
+from .models import (  # I'm working with models so I need to bring the models in so I have access to them.
+    Category, Product)
+
 
 # Create your views here.
 def all_products(request): #request: This is the user's request information

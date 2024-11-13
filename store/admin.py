@@ -1,6 +1,8 @@
 #here we just need to tell Django what models we want to use (register them) so that we can start adding data to those models. so we just need to go ahead and describe what we want to include.
 from django.contrib import admin
+
 from .models import Category, Product
+
 # Register your models here.
 
 @admin.register(Category) #This decorator is gonna tell Django that we want to register 'Category' model with the Django admin site, linking it to the 'CategoryAdmin' class, allowing it to be managed through the admin interface. in the class below we add some additional information.

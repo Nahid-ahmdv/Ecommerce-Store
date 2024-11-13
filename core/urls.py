@@ -14,11 +14,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.contrib import admin
-from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls', namespace='store')), #It's better to separate our URLs into the application level.'' is the root directory and the HomePage. and namespace will allow us later on in the program to kind of access our URLs in a more convenient way.

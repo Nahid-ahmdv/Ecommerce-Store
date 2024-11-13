@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os  #This is a python module that kind of allows us access to the path or root directory or the directory system in your operating system.
+import os  # This is a python module that kind of allows us access to the path or root directory or the directory system in your operating system.
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
