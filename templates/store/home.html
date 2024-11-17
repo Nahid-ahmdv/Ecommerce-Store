@@ -3,7 +3,7 @@
 {% block title %}HomePage{% endblock %}
 {% block content %}
 <section class="py-5 text-center container">
-    <div class="row py-lg-5">
+    <div class="row py-lg-2">
       <div class="col-lg-6 col-md-8 mx-auto">
         <h1 class="h1 fw-bold">Search, Read, Buy, Review</h1>
         <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator,
@@ -21,7 +21,7 @@
       <div class="pb-3 h5">All Products</div>
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3">
 
-        {% for product in products %} <!--The 'products' here is related to 'all_products' view in views.py-->
+        {% for product in products %} <!--The 'products' here is related to 'product_all' view in views.py-->
 
         <div class="col">
           <div class="card md-4 box-shadow">

@@ -1,6 +1,6 @@
 {% extends "../base.html" %}
 {% load static %}
-{% block title %}HomePage{% endblock %}
+{% block title %}{{ category.name | title }}{% endblock %}
 {% block content %}
 <main>
   <div class="album py-5 bg-light">

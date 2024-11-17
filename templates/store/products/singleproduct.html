@@ -1,0 +1,156 @@
+{% extends "store/base.html" %}
+{% load static %}
+{% block title %}
+{{ product.title }}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <main>
+        <div class="row g-4">
+            <div class="col-md-5 col-lg-5 order-md-first">
+                <img class="img-fluid rounded shadow" alt="{{ product.title }}" src="{{ product.image.url }}">
+            </div>
+            <div class="col-md-7 col-lg-7">
+                <h1 class="mb-3 h4 text-primary">{{ product.title }}</h1>
+                <p class="lead text-muted"><span class="fw-bold">{{ product.author }}</span> (Author)</p>
+                
+                <div id="description-container">
+                    <div class="product-description">
+                        <p style="color: black;" id="short-description">
+                            <span class="a-text-bold">{{ product.description|safe|slice:":355" }}...</span>
+                        </p>
+                        <!-- Full description is hidden initially -->
+                        <p style="color: black;" class="d-none" id="full-description">{{ product.description|safe }}</p>
+                    </div>
+                </div>
+                
+                <button id="toggle-description" class="btn btn-link p-0 text-primary" style="text-decoration: none;">Read More</button>
+
+                <div class="card border-light mt-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                            <div>Format: Hardback</div>
+                            <div><span class="h4 fw-bold text-success">£{{ product.price }}</span></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <label for="select">Qty</label>
+                                <select id="select" class="h6" style="width:50px;height:30px;">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <button type="button" id="add-button" value="{{product.id}}" class="btn btn-primary btn-sm">Add to Basket</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+$(document).ready(function() {
+    $("#toggle-description").click(function() {
+        // Toggle visibility of short and full descriptions
+        $("#short-description").toggleClass("d-none"); // Hide short description
+        $("#full-description").toggleClass("d-none"); // Show full description
+        
+        // Change button text based on current state
+        $(this).text($(this).text() === "Read More" ? "Read Less" : "Read More");
+    });
+});
+</script>
+<!--jQuery AJAX request:-->
+<!--uses jQuery to handle a button click event and send an AJAX request to a Django backend.-->
+<script>
+    //This line uses jQuery's $(document).on() method to attach a click event listener to the element with the ID add-button. This is a jQuery way of handling events.
+    $(document).on('click', '#add-button', function (e) {  
+        e.preventDefault();
+        //let's just test to make sure we can select:
+        //jQuery Selector:
+            // $('#select option:selected'): This uses jQuery to select the currently selected <option> within the <select> element with the ID 'select'.
+            // #select: This targets the <select> element by its ID.
+            // option:selected: This selects the <option> that is currently selected by the user.
+            // Getting Text Content:
+            // .text(): This jQuery method retrieves the text content of the selected <option>. For example, if a user selects "2", this method will return "2".
+            // Logging to Console:
+            // console.log(...): This function outputs whatever is passed to it into the browser's console. It’s useful for debugging and checking values during development.
+        //console.log($('#select option:selected').text()) or the line below
+        console.log($('#select option:selected').val())
+        //2)AJAX Request:
+        //sending some data:
+        $.ajax({ //making an AJAX request to send some data to the server and then return data.
+            type: 'POST',
+            //we're gonna send the AJAX request off to a url which is connected to a view and in this way, we can go to the backend and capture this information:
+            url: '{% url "basket:basket_add" %}', //where we're gonna send this data, that's gonna be connected to a url, that url is gonna be connected to a view (behind the scenes). The 'url' parameter uses the {% url "basket:basket_add" %} tag to dynamically generate the correct endpoint for adding items to a basket. This ensures that when the AJAX request is made, it points to the correct view handling that action.
+            data: {
+                productid: $('#add-button').val(), //grabbing the value: we're just telling JavaScript to have a look for the value of an element for which id="add-button".
+                productqty: $('#select option:selected').text(),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            //receiving a response (which is asynchronous) :
+            //term 'asynchronous' refers to the ability of the web application to perform tasks without blocking the user interface or requiring the entire webpage to reload.
+            success: function (json) { // We're going to reference that returned data as 'json' because it is in JSON format.
+               console.log(json) //it's gonna show the total gty into the console.
+               //3) DOM Manipulation: (The term DOM stands for Document Object Model. It is a programming interface that browsers use to represent and interact with HTML and XML documents.)
+               document.getElementById("basket-qty").innerHTML = json.qty 
+               //Accessing the Element: This JavaScript line accesses the <div> element with the ID 'basket-qty' (which is in base.html).
+               //Updating Inner HTML: It sets the inner HTML of that element to the value of 'json.qty'.
+               //When the Django template renders, it calculates total_qty based on the length of basket and displays that value in the <div>.
+               //Later, when you run the JavaScript code, it updates the content of that same <div> to whatever value is contained in 'json.qty'.
+               //which means assigns the total_qty in {{ total_qty }} the value of 'json.qty'.
+               //although we're not working on 'base.html', that will get rendered with this page (singleproduct.html) and because this will be loaded in the DOM, so we can access the id of an element within 'base.html' and change its inner HTML value.
+            },
+            error: function (xhr, errmsg, err) {}
+        });
+    })
+</script>
+<script>
+    //To add an effect when the button is clicked, you can use jQuery to create visual feedback for the user:
+    $(document).on('click', '#add-button', function (e) {
+        e.preventDefault();
+    
+        // Change button color
+        $(this).css('background-color', 'green');
+    
+        // Optional: Reset color after a short delay
+        setTimeout(() => {
+            $(this).css('background-color', '');
+        }, 500); // Change back after 500 milliseconds
+    
+        // Your AJAX code here...
+    });
+    </script>
+{% endblock %}
+<!--
+Definition of Asynchronous in AJAX
+Non-blocking Operations: Asynchronous operations allow a program to initiate a task and then continue executing other code without waiting for that task to complete. 
+In AJAX, this means that when a request is made to the server, the user can still interact with the webpage while waiting for the server's response.
+
+User Experience: Because AJAX requests are handled asynchronously, users can continue to browse or interact with other elements of the webpage without interruption. 
+This leads to a smoother and more responsive user experience compared to synchronous requests, where the entire page would freeze until the server responds.
+
+Background Data Exchange: In AJAX, data can be sent and received in the background. For example, when a user submits a form or clicks a button, an AJAX call can fetch data from the server without requiring a full page reload. 
+The results can then be used to update specific parts of the webpage dynamically.
+
+Example: When you click a button that fetches new content (like comments or product details), an AJAX call is made asynchronously. 
+While waiting for this data, you can still scroll through other content on the page or interact with different elements.
+In summary, asynchronous in "AJAX asynchronous JavaScript" allows for efficient data handling and improved user interaction by enabling background processes that do not disrupt the user's experience on the webpage.
+-->
+
+<!--
+Purpose of Using % url % Template Tag
+Dynamic URL Generation: The % url % template tag allows you to generate URLs based on the view names ('namespace') defined in your Django 'urls.py' file. 
+This is particularly useful because it avoids hardcoding URLs in your JavaScript code, which can lead to issues if the URL structure changes.
+
+Maintainability: If you later change the URL pattern for the "basket:basket_add" view in your Django application, you won't need to update it in multiple places within your JavaScript code. 
+Instead, you only need to update it in one location (the 'urls.py' file), and the % url % tag will automatically reference the new URL.
+
+Avoiding Hardcoding: Hardcoding URLs can lead to errors, especially in larger applications where multiple developers might be working on different parts of the codebase. Using the % url % tag helps ensure that all parts of your application reference URLs consistently.
+Contextual Awareness: The % url % tag takes into account any parameters required by the view, making it easier to construct URLs that may vary based on user input or other dynamic factors.
+-->

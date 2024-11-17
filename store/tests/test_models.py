@@ -18,13 +18,23 @@ class TestCategoriesModel(TestCase): #This class will contain tests related to t
         data = self.data1
         self.assertTrue(isinstance(data, Category)) #This line is gonna perform a test.
 
+
     def test_category_model_entry(self): #for making a new test we should make a new function. and we already have our data up the top here in the 'setUp' function so we can utilize that again.
         """
         Test Category model return name
         """
         data = self.data1
         self.assertEqual(str(data), 'django') #on the left hand side should match the right hand side. because we've set up that dunder string method in our 'Category' model (__str__), str(data) will return the name of the data which in this case is 'django', and we're gonna test it against 'django' so it should be true.
-
+    
+    
+    def test_category_url(self):
+        """
+        Test category model slug and URL reverse
+        """
+        data = self.data1
+        response = self.client.post(
+            reverse('store:category_list', args=[data.slug]))
+        self.assertEqual(response.status_code, 200)
 #we can now do the same thing to our 'Product' model, but for 'Product' model it is a little bit more complicated because it has more fields. 
 class TestProductsModel(TestCase): #we create a new class here = a new set of tests.
     def setUp(self):
@@ -32,8 +42,8 @@ class TestProductsModel(TestCase): #we create a new class here = a new set of te
         User.objects.create(username='admin')
         self.data1 = Product.objects.create(category_id=1, title='django beginners', created_by_id=1,
                                             slug='django-beginners', price='20.00', image='django')
-        # self.data2 = Product.products.create(category_id=1, title='django advanced', created_by_id=1,
-                                            #  slug='django-advanced', price='20.00', image='django', is_active=False) #why we did use 'category_id' and 'created_by_id' instead of 'category' and 'created_by'? 'cause if you check out the 'Product' table in the 'db.sqlite3' database, you can see that there're fields named 'category_id' and 'created_by_id' so for referencing these fields we need to use the same names.
+        self.data2 = Product.products.create(category_id=1, title='django advanced', created_by_id=1,
+                                             slug='django-advanced', price='20.00', image='django', is_active=False) #why we did use 'category_id' and 'created_by_id' instead of 'category' and 'created_by'? 'cause if you check out the 'Product' table in the 'db.sqlite3' database, you can see that there're fields named 'category_id' and 'created_by_id' so for referencing these fields we need to use the same names.
         
     def test_products_model_entry(self):
         """
@@ -42,3 +52,21 @@ class TestProductsModel(TestCase): #we create a new class here = a new set of te
         data = self.data1
         self.assertTrue(isinstance(data, Product))
         self.assertEqual(str(data), 'django beginners') #we test the dunder string method (__str__) to make sure that the default return is the title in this case.
+
+    def test_products_url(self):
+        """
+        Test product model slug and URL reverse
+        """
+        data = self.data1
+        url = reverse('store:product_detail', args=[data.slug])
+        self.assertEqual(url, '/products/django-beginners/')
+        response = self.client.post(
+            reverse('store:product_detail', args=[data.slug]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_products_custom_manager_basic(self):
+        """
+        Test product model custom manager returns only active products
+        """
+        data = Product.products.all()
+        self.assertEqual(data.count(), 1)

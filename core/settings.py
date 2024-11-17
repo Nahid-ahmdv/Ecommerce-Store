@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-2-1&y3ldsni+65%49^pxl@@ld^(2pyb*xc10exi4yh2y1&1$1%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['yourdomain.com', '127.0.0.1'] #when you implement (deploy) your application, you're gonna need to change the 'ALLOWED_HOSTS'. For example if you were to deploy your application onto a server and then you have a domain name associated to that server, you need to make sure that in Django in the 'ALLOWED_HOSTS' that domain name is in place, so that basically tells Django that this application of Django is accessible on that domain name.
 
 
 # Application definition
@@ -34,15 +35,16 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
+    'django.contrib.sessions',  #That is a reason why you have a session database, when you initially migrate your Django project, because we've got installed by default the sessions module.
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'store',
+    'basket',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', #This also needs to be available for sessions to work.
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -63,7 +65,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'store.views.categories',  #This means that for every page that we view, we have access to 'categories' view (so we can access the 'Category' table data through the keyword 'categories').
+                # 'store.views.categories',  #This means that for every page that we view, we have access to 'categories' view (so we can access the 'Category' table data through the keyword 'categories').
+                'store.context_processors.categories', #after adding 'context_processors.py' file in 'store' app we turn the above line into a comment and replace it with this line.
+                'basket.context_processors.basket', #now we have that available within each template. 
             ],
         },
     },

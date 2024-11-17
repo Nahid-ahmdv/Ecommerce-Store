@@ -19,9 +19,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+#we use 'namespace' to refer to a view for avoiding hardcoding.
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls', namespace='store')), #It's better to separate our URLs into the application level.'' is the root directory and the HomePage. and namespace will allow us later on in the program to kind of access our URLs in a more convenient way.
+    path('basket/', include('basket.urls', namespace='basket')), #we can't have two pathes starting from the root.
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 #We can either write it like the line below or above.
 # if settings.DEBUG:  #while we're working in the development environment (opposite of production environment) we have got "DEBUG = True" and that provides us an additional information when we make mistakes in our project and we can kind of view them in the browser, of course we don't want that to happen in our production environment so we turn that off.

@@ -5,7 +5,7 @@ from django.urls import reverse
 
 
 # Create your models here.
-class ProductManager(models.Manager): #This is a custom manager
+class ProductManager(models.Manager): #This is a custom model manager, we made it because maybe we don't want to show some of the products that are unavailabe and we don't select them as active.
     def get_queryset(self):
         return super(ProductManager, self).get_queryset().filter(is_active=True)
 class Category(models.Model): #we're extending from 'models.Model'. That's gonna provide us access to kind of the functionality that we're gonna need to build and describe a model.
@@ -54,8 +54,9 @@ class Product(models.Model):
     title = models.CharField(max_length=255) #The title of the product.
     author = models.CharField(max_length=255, default='admin') #The author of the book.
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='images/') #(we should have Pillow (which is a package that helps us manage images) installed) I'm gonna assume that the product only has one image. we're not actually storing the image in the database; we're storing the link of the image to the database. So we're gonna have to set up that link system (steps 2 and 3 below).
+    image = models.ImageField(upload_to='images/', default='images/default.png') #(we should have Pillow (which is a package that helps us manage images) installed) I'm gonna assume that the product only has one image. we're not actually storing the image in the database; we're storing the link of the image to the database. So we're gonna have to set up that link system (steps 2 and 3 below).
     #we just have to create a new folder called 'media' in the main root of our project. we don't need to also create 'images' folder inside of this 'media' folder, this is just gonna create automatically and Django is gonna do that for us.
+    #If we don't have a default image, we force that person (whoever wants to add products) to actually upload an image for a product.
     '''
     image:
         This is the name of the field in the model. It will be used to reference the uploaded image in instances of this model.
@@ -100,8 +101,9 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True) #There might be some products that aren't actually active to buy, maybe for example you've run out of stock.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    objects = models.Manager() #default manager
-    products = ProductManager() #custom manager
+    #we added the model managers to our model
+    objects = models.Manager() #The default manager
+    products = ProductManager() #The custom manager
     '''
     If you set 'auto_now=True', every time you save an instance of that model, the timestamp will update.
     If you set 'auto_now_add=True', it will only set the timestamp once at creation, and any subsequent saves will not affect this field.

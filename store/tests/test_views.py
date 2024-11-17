@@ -7,7 +7,7 @@ from django.test import (  # we want to simulate a user going to our page and ac
 from django.urls import reverse
 
 from store.models import Category, Product
-from store.views import all_products
+from store.views import product_all
 
 
 @skip("demonstrating skipping")
@@ -28,9 +28,9 @@ class TestViewResponses(TestCase):
         Product.objects.create(category_id=1, title='django beginners', created_by_id=1,
                                slug='django-beginners', price='20.00', image='django')
         # Database Setup: The 'setUp' method creates necessary entries in the database for testing:
-            # A user with the username 'admin'.
-            # A category named 'django'.
-            # A product titled 'django beginners', associated with the created category and user.
+        #     A user with the username 'admin'.
+        #     A category named 'django'.
+        #     A product titled 'django beginners', associated with the created category and user.
 
 # Test Methods
 # Each method within this class tests a different aspect of the application's functionality.
@@ -46,7 +46,7 @@ class TestViewResponses(TestCase):
         """
         response = self.c.get('/', HTTP_HOST='noaddress.com') #when we make a GET request to this page (Homepage) what's gonna return from the server is the status code (HTTP response status code). 200 means we've retrieved the data and everything is OK, the page has returned correctly. 
         self.assertEqual(response.status_code, 400)
-        response = self.c.get('/', HTTP_HOST='yourdomain.com')
+        response = self.c.get('/', HTTP_HOST='yourdomain.com') #because of the changes that I made on 'settings.py' file in 'ALLOWED_HOSTES', this domain should work when I try and access the website.
         self.assertEqual(response.status_code, 200)
 
 
@@ -58,7 +58,7 @@ class TestViewResponses(TestCase):
         """
         Test homepage response status
         """
-        response = self.c.get('/') #The Client instance (self.c) is utilized throughout the test methods to make GET or POST requests to different URLs defined in the application. For example: This line sends a GET request to the homepage ('/') and stores the response in the variable 'response'.
+        response = self.c.get('/') #we've used the client to send a HTTP response GET request to this path. #The Client instance (self.c) is utilized throughout the test methods to make GET or POST requests to different URLs defined in the application. For example: This line sends a GET request to the homepage ('/') and stores the response in the variable 'response'.
         self.assertEqual(response.status_code, 200)
 
 
@@ -104,8 +104,8 @@ class TestViewResponses(TestCase):
         """
         Example: code validation, search HTML for text
         """
-        request = HttpRequest()#we want to simulate a request directly to the'all_products' view not through the corresponding URL.  #This line creates a new instance of 'HttpRequest'. This object simulates an HTTP request that can be passed to the view function being tested (in this case 'all_products').
-        response = all_products(request)
+        request = HttpRequest()#we want to simulate a request directly to the 'product_all' view not through the corresponding URL.  #This line creates a new instance of 'HttpRequest'. This object simulates an HTTP request that can be passed to the view function being tested (in this case 'product_all').
+        response = product_all(request)
         html = response.content.decode('utf8') #decoding the response
         self.assertIn('<title>HomePage</title>', html)
         self.assertTrue(html.startswith('<!DOCTYPE html>\n'))
@@ -124,11 +124,10 @@ class TestViewResponses(TestCase):
         Example: Using request factory
         """
         request = self.factory.get('/products/django-beginners')
-        response = all_products(request)
+        response = product_all(request)
         html = response.content.decode('utf8') #now what we find in this side of this 'html' variable is all the html that's been returned from that page (HomePage in this case).
         self.assertIn('<title>HomePage</title>', html)
         self.assertTrue(html.startswith('<!DOCTYPE html>'))
         self.assertEqual(response.status_code, 200)
 
 
-        
