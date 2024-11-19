@@ -1,7 +1,148 @@
+<!--Here is where we're gonna see all the products that we've put in our basket in a nice little list before we can then purchase them.-->
 {% extends "../base.html" %}
 {% load static %}
 {% block title %}Basket Summary{% endblock %}
 
 {% block content %}
-Basket Page
+<main class="pt-5">
+    <div class="container">
+      <h1 class="h5">Shopping basket</h1>
+      {% for item in basket %} <!--This line automatically calls the '__iter__' method of 'Basket' class.--><!--We're not iterating over the actual basket session data here; we want to iterate over the items that are in the basket—the actual data from the database. Remember, in the session data, we're recording and storing the ID of each product that is in the database. In our session data, we're storing only the ID of each product (not its other attributes).
+      What we need to do is take the session data, look at all the IDs of the products we've stored, and extract from the 'Product' database all the product instances corresponding to those IDs. We made a copy of the original basket, and to that copy, we've added a reference by a key named 'product' to the product instance that has an ID equal to what we have stored in our original basket.-->
+      <!--an example of that copied 'basket' at final: {'skey': {'8': {'price': 15.99, 'qty': 4, 'product': product8, 'total_price':63.96}, '7': {'price': 12.99, 'qty': 3, 'product': product7, 'total_price':38.97}, '4': {'price': 13.99, 'qty': 1, 'product': product4, 'total_price':13.99}}} where 'product8' is an instance of 'Product' class with id=8.-->
+      {% with product=item.product %}<!--Each 'item' in the loop is a dictionary that contains keys like 'price', 'gty', and 'product'.and item itself is a str that is equal to just the key of each item in the basket like '8', '7', and '4'-->
+      <!--When you use 'item.product', Django checks if 'item' has an attribute named 'product'. Since item is a dictionary, Django will look for the key 'product' within that dictionary.-->
+      <div data-index="{{ product.id }}" class="row mb-4 border rounded shadow-sm product-item">
+        <div class="col-md-3 col-lg-2 order-md-first bg-light text-center p-3">
+            <div class="photo-container">
+                <img class="img-fluid rounded shadow" alt="Product image" src="{{ product.image.url }}">
+            </div>
+        </div>
+        <div class="col-md-9 col-lg-10 ps-md-3 ps-lg-10">
+            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-reset">
+                <span style="color: rgb(0, 21, 255);"><h1 class="h5 pt-2">{{ product.title }}</h1></span>
+            </a>
+            <div class="border rounded mb-3">
+                <div class="row p-3 align-items-center"> <!-- Added align-items-center -->
+                    <div class="col-6 h6 fw-bold">Subtotal Price: </div>
+                    <div class="col-6 text-end fw-bold">£<span id="total-price-{{ product.id }}" class="h6 fw-bold">{{ item.total_price }}</span></div>
+                </div>
+            </div>
+            <div class="row p-3 border rounded">
+                <div class="col-12">
+                    <label for="select{{ product.id }}">Qty</label>
+                    <select id="select{{ product.id }}" class="form-select d-inline-block w-auto">
+                        {% for qty in "1234"|make_list %}
+                            {% if qty == item.qty|stringformat:"s" %}
+                                <option selected>{{ qty }}</option>
+                            {% else %}
+                                <option value="{{ qty }}">{{ qty }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button type="button" id="update-button" data-index="{{ product.id }}"
+                            class="btn btn-outline-secondary btn-sm update-button ms-2">
+                        Update
+                    </button>
+                    <button type="button" id="delete-button" data-index="{{ product.id }}"
+                            class="btn btn-outline-danger btn-sm delete-button ms-2">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+    <div class="col-12 text-end mt-4">
+        <h4 class="fw-bold">Total Price: £<span id="baskettotal" class="d-inline-flex">{{ basket.get_total_price }}</span></h4>
+    </div>
+</div>
+</main>
+
+<script>
+// jQuery to handle the updating of an item in a shopping basket when the "Update" button is clicked.
+$(document).on('click', '#update-button', function (e) {////'#add-button' refers to the class, '.add-button' refers to the id. //This line sets up an event listener for click events on any element with the class 'update-button'. The $(document).on() method ensures that even if these buttons are added dynamically after the page has loaded, the event listener will still work.
+e.preventDefault(); //In HTML forms, buttons (especially of type "submit") have a default action that typically submits the form data to the server. This can cause the page to reload or navigate to a different URL, depending on how the form is set up.By calling 'e.preventDefault()'', you are telling the browser to stop this default action from occurring. This means that clicking the update button will not cause the page to reload or navigate away.
+                    // Instead of allowing the default submission, you can implement custom logic in your JavaScript code. In this case, you want to send an AJAX request to update the item in the shopping basket without refreshing the page.
+                    // This allows for a smoother user experience, as users can see updates in real-time without interruptions.
+var prodid = $(this).data('index'); //collecting the product ID from the 'Delete' button of that particular item when the button is pressed//This line is executed within the click event handler for the update button. 
+    // The $(this) refers to the specific button that was clicked. The data('index') method retrieves the value of the 'data-index' attribute from the clicked button. 
+    // This attribute is set in your HTML when rendering the button for each product, and it contains the unique ID of the product associated with that button. T
+    // he variable 'prodid' now holds the product ID as a string, which will be used later to identify which item in the basket is being updated.
+var selectedQty = $('#select' + prodid + ' option:selected').text(); //The variable 'selectedQty' now holds the value of the selected quantity as a string (e.g., "1", "2", etc.).
+
+// When a user clicks on the "Update" button:
+// If 'product.id' is 5, then 'prodid' would be "5".
+// The corresponding <select> element would have an ID of select5.
+// If a user has selected "2" in that dropdown, then 'selectedQty' would be "2".
+
+//This initiates an AJAX POST request:
+$.ajax({
+    type: 'POST',
+    url: '{% url "basket:basket_update" %}', // The URL where the request is sent to be handled. This ensures that when the AJAX request is made, it points to the correct view handling that action.
+    data: { //An object containing data sent to the server:
+        productid: prodid, //The ID of the product being updated.
+        productqty: selectedQty, //The new quantity selected by the user.
+        csrfmiddlewaretoken: "{{ csrf_token }}",
+        action: 'post' //A string indicating what action is being performed (in this case, it's just 'post').
+    },
+    //server responds with data in JSON format, which is passed to this function as the 'json' argument.
+    success: function (json) { //This function executes if the AJAX request is successful. The server response is expected to be in JSON format and is passed as an argument (json).
+        // Update the displayed quantity in the basket count (if needed)
+        document.getElementById("basket-qty").innerHTML = json.qty; //in 'base.html'
+
+        // Update the subtotal price for this specific item
+        var newTotalPrice = json.item_total_price; // Assuming you return this from the view
+        $('#total-price-' + prodid).text(newTotalPrice);
+
+        // Update the overall baskettotal if needed
+        $('#baskettotal').text(json.baskettotal);
+    },
+    error: function (xhr, errmsg, err) {}
+});
+});
+
+
+// jQuery to handle the deleting of an item in a shopping basket when the "Delete" button is clicked.
+$(document).on('click', '.delete-button', function (e) { //'#add-button' refers to the class, '.add-button' refers to the id.//This line sets up an event listener for click events on any element with the class 'update-button'. The $(document).on() method ensures that even if these buttons are added dynamically after the page has loaded, the event listener will still work.
+e.preventDefault(); //In HTML forms, buttons (especially of type "submit") have a default action that typically submits the form data to the server. This can cause the page to reload or navigate to a different URL, depending on how the form is set up.By calling 'e.preventDefault()'', you are telling the browser to stop this default action from occurring. This means that clicking the update button will not cause the page to reload or navigate away.
+                    // Instead of allowing the default submission, you can implement custom logic in your JavaScript code. In this case, you want to send an AJAX request to update the item in the shopping basket without refreshing the page.
+                    // This allows for a smoother user experience, as users can see updates in real-time without interruptions.
+var prodid = $(this).data('index'); //This line is executed within the click event handler for the delete button. The $(this) refers to the specific button that was clicked. 
+// The data('index') method retrieves the value of the 'data-index' attribute from the clicked button. 
+// This attribute is set in your HTML when rendering the button for each product, and it contains the unique ID of the product associated with that button. 
+// The variable 'prodid' now holds the product ID as a string, which will be used later to identify which item in the basket is being updated.
+
+// When a user clicks on the "Update" button:
+// If 'product.id' is 5, then 'prodid' would be "5".
+// The corresponding <select> element would have an ID of select5.
+
+//This initiates an AJAX POST request:
+$.ajax({
+    type: 'POST',
+    url: '{% url "basket:basket_delete" %}', // The URL where the request is sent to be handled. This ensures that when the AJAX request is made, it points to the correct view handling that action.
+    data: { //An object containing data sent to the server:
+        productid: prodid, //The ID of the product being deleted.
+        csrfmiddlewaretoken: "{{ csrf_token }}",
+        action: 'post' //A string indicating what action is being performed (in this case, it's just 'post').
+    },
+    //returning that data from the 'basket_update' view and referencing to it via the 'json' word.
+    success: function (json) { //This function executes if the AJAX request is successful. The server response is expected to be in JSON format and is passed as an argument (json).
+        // Update the displayed quantity in the basket count (if needed)
+        $('.product-item[data-index="' + prodid + '"]').remove();
+            // Purpose: This line selects the HTML element representing the product item that was just removed from the basket.
+            // Selector Explanation:
+            // The selector $('.product-item[data-index="' + prodid + '"]') uses jQuery to find a <div> with the class 'product-item' that also has a 'data-index' attribute matching the prodid (line 15, which is the div element that wraps around all of the attachments of an individual product that we added into our basket summary page).
+            // This effectively identifies the specific product item in the DOM.
+            // Action: The .remove() method removes this element from the DOM, meaning that it will no longer be displayed on the page.
+        document.getElementById("baskettotal").innerHTML = json.baskettotal; //It accesses an element with the ID baskettotal and sets its inner HTML to the new baskettotal value returned by the server in json.baskettotal.
+        document.getElementById("basket-qty").innerHTML = json.qty        
+
+ 
+    },
+    error: function (xhr, errmsg, err) {}
+});
+});
+</script>
 {% endblock %}

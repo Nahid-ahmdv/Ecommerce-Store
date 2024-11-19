@@ -11,8 +11,8 @@ app_name = 'basket' #same as the 'namespace' of the path referred to this direct
 # Create your views here.
 
 def basket_summary(request): # This 'request' is an instance of 'HttpRequest' which contains the details of user request.
-    # basket = Basket(request)
-    return render(request, 'store/basket/summary.html') #we're gonna create a new folder is 'templates/store' folder called 'basket' and inside that a page called 'summary.html'.
+    basket = Basket(request) #to be able to grab the user's basket session data (remember we're instantiating the 'Baket' class here. In other word, an instance of the 'Basket' class is created using the incoming 'request'. This initializes the session and retrieves or creates the user's basket.)
+    return render(request, 'store/basket/summary.html', {'basket': basket}) #we're gonna create a new folder is 'templates/store' folder called 'basket' and inside that a page called 'summary.html'.
 
 
 
@@ -20,7 +20,7 @@ def basket_summary(request): # This 'request' is an instance of 'HttpRequest' wh
 
 #some data within a AJAX request (been created in 'singleproduct.html') is gonna be sent off to this view and we need to collect the data that's been sent to this view from our page ('singleproduct.html'):
 def basket_add(request): #This defines a function named 'basket_add', which handles adding items to the shopping basket. It takes an HTTP request as an argument.
-    #we're gonna need to session data so first of all we grab that (because we want to )
+    #we're gonna need to access to user's basket session data so first of all we grab that.
     basket = Basket(request) #Here, an instance of the 'Basket' class is created using the incoming 'request'. This initializes the session and retrieves or creates the user's basket.
     #if request.method == 'POST':
     #or
@@ -28,7 +28,7 @@ def basket_add(request): #This defines a function named 'basket_add', which hand
         #When a user submits a form on a webpage, any input fields within that form are sent to the server as part of the POST request.
         #Each input field's name attribute becomes a key in the 'request.POST' dictionary, and its value becomes the corresponding value.
         
-        product_id = int(request.POST.get('productid')) #collecting the product id from the data #This retrieves the product ID from the 'POST' data and converts it to an integer.
+        product_id = int(request.POST.get('productid')) #collecting the product id from the AJAX request data #This retrieves the product ID from the AJAX request data and converts it to an integer.
         product_qty = int(request.POST.get('productqty')) #Similarly, this retrieves and converts the product quantity from the 'POST' data.
         #now l've got the actuall product id I can now actually find the product in the database ('Product' model):
         product = get_object_or_404(Product, id=product_id) #we collected that product via its id. Therefor, we have access to all of its information.#This line attempts to retrieve a Product object from the database using its ID. If no product with that ID exists, it raises a 404 error (not found).
@@ -109,14 +109,63 @@ For Product ID '2', the quantity is 1.
 So, the total quantity would be:
 Total Quantity = 3 (from product ID 1) + 1 (from product ID 2) = 4
 '''
+# def basket_update(request):
+#     basket = Basket(request)
+#     if request.POST.get('action') == 'post':
+#         product_id = int(request.POST.get('productid'))
+#         product_qty = int(request.POST.get('productqty'))
+#         basket.update(product=product_id, qty=product_qty)
+
+#         basketqty = basket.__len__()
+#         baskettotal = basket.get_total_price()
+#         response = JsonResponse({'qty': basketqty, 'subtotal': baskettotal})
+#         return response
 def basket_update(request):
     basket = Basket(request)
     if request.POST.get('action') == 'post':
-        product_id = int(request.POST.get('productid'))
-        product_qty = int(request.POST.get('productqty'))
-        basket.update(product=product_id, qty=product_qty)
+        # product_id = int(request.POST.get('productid'))
+        product_qty = int(request.POST.get('productqty')) 
+        product_id = request.POST.get('productid') #we're gonna get the ID of the product which is gonna be getting updated and the quantity from the AJAX request data. 
+        # Update the quantity in the basket
+        print(product_qty)
+        print(product_id)
+        basket.update(product=product_id, qty=product_qty) #updating the data within our session data
 
+        # Get updated quantities and prices
         basketqty = basket.__len__()
         baskettotal = basket.get_total_price()
-        response = JsonResponse({'qty': basketqty, 'subtotal': baskettotal})
+        print(baskettotal)
+        # Calculate the total price for this specific item
+        item_total_price = basket.get_item_total_price(product_id)  # Implement this method as needed
+        #we use 'response' to send the data back.
+        response = JsonResponse({
+            'qty': basketqty,
+            'baskettotal': baskettotal,
+            'item_total_price': item_total_price  # Send back the updated total price for this item
+        })
+        
+        return response
+
+def basket_delete(request):
+    basket = Basket(request)
+    if request.POST.get('action') == 'post':
+        # product_id = int(request.POST.get('productid'))
+        product_id = request.POST.get('productid') #we don't need to convert it to int 'cause all we need in this function an the method definded in 'Baket'class called 'delete' is str version of it, which because of this line in the summary.html file 'var prodid = $(this).data('index');' is already str.
+        
+        # Update the quantity in the basket
+        basket.delete(product=product_id)
+
+        # Get updated quantities and prices
+        basketqty = basket.__len__()
+        baskettotal = basket.get_total_price()
+        
+        # Calculate the total price for this specific item
+        # item_total_price = basket.get_item_total_price(product_id)  # Implement this method as needed
+
+        response = JsonResponse({
+            'qty': basketqty,
+            'baskettotal': baskettotal,
+            # 'item_total_price': item_total_price  # Send back the updated total price for this item
+        })
+        
         return response

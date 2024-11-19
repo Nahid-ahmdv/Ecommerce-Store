@@ -74,23 +74,52 @@ class Basket():
     '2': {'price': '15.50', 'qty': 1}
     }
     '''
+    #The reason we created the method below is that, in our summary HTML, we implemented a loop that iterates over the user's basket, even though it is not iterable itself. Therefore, we need to create a new feature (the __iter__ method) to make instances of the Basket class iterable, allowing us to loop over the user's basket.
+    #the method below allows an object to be iterable. This means that you can use it in a loop (like a for loop) to iterate over its items.
+    #it allows instances of the 'Basket' class to be treated like a collection of items, specifically the products in the user's shopping basket.
+    ###########When you create an instance of your 'Basket' class and iterate over it, this method is called automatically:(like in 'summary.html')
     def __iter__(self):
         """
         Collect the product_id in the session data to query the database
         and return products
         """
-        product_ids = self.basket.keys()
-        products = Product.products.filter(id__in=product_ids)
-        basket = self.basket.copy()
+        #Collecting Product IDs:
+        product_ids = self.basket.keys() # This line retrieves all the keys from the 'self.basket' dictionary, which represent the product IDs currently stored in the basket.
+        '''
+            example:
+            basket = {
+            '1': {'price': '10.00', 'qty': 2},
+            '2': {'price': '15.50', 'qty': 1}
+            }
+            basket.keys() equals to ['1', '2']
+        '''
+        #Querying Products from Database:
+        products = Product.products.filter(id__in=product_ids) #This line queries the database for all products whose IDs are present in the 'product_ids' list. It uses Django's ORM to filter the Product model based on these IDs. The result ('products') is a queryset containing all products that are currently in the user's basket.
+        
+        #Copying Basket Data:
+        basket = self.basket.copy() #This creates a shallow copy of the 'self.basket' dictionary. This is useful because you will be modifying this copy by adding product information without altering the original basket data directly.
 
-        for product in products:
-            basket[str(product.id)]['product'] = product
+        #Associating Products with Basket Items:
+        #This loop iterates over each product retrieved from the database. For each product, it adds a reference to that product object into the copied basket dictionary under its respective ID. This allows you to access product details (like name, description, etc.) later when iterating over the basket items.
+        for product in products: #'products' is the data coming from the database.
+            basket[str(product.id)]['product'] = product #adding additional data to my copied 'basket'.
 
-        for item in basket.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['qty']
-            yield item
+        
+        #Yielding Basket Items:
+        for item in basket.values(): #This final loop iterates over all items in the copied basket dictionary. 
+            item['price'] = Decimal(item['price']) #It converts the price of each item from a string to a Decimal (to be able to do calculations), ensuring accurate arithmetic operations (important for financial calculations).
+            item['total_price'] = item['price'] * item['qty']#adding new 'key:value'to this item which itself is a dictionary. It calculates the total price for each item (subtotal) by multiplying its price by its quantity (item['qty']).
+            yield item #The yield statement returns each item one at a time (unlike 'return'), allowing you to iterate over them as if they were elements of a list.
+    '''
+    Example Usage
+    When you create an instance of your 'Basket' class and iterate over it, this method is called automatically:
+    python
+    basket_instance = Basket(request)
 
+    for item in basket_instance:  # Calls __iter__()
+    print(f"Product: {item['product'].name}, Quantity: {item['qty']}, Total Price: {item['total_price']}")
+    '''
+    
     def __len__(self):
         """
         Get the basket session data and count the qty of items
@@ -101,12 +130,49 @@ class Basket():
         """
         Update values in basket session data
         """
-        product_id = str(product)
+        # product_id = str(product)
+        product_id = product #just remember this 'product' is the product ID and not the actual product data from the database.
+        # qty = qty #we don't have to do that necessarily, but just lay it out there so we have got these two parameters.
         if product_id in self.basket:
             self.basket[product_id]['qty'] = qty
         self.save()
-    def save(self):
+    
+    def delete(self, product):
+        """
+        Delete item from session data
+        """
+        product_id = product
+
+        if product_id in self.basket: #'product_id' considered as a key in this dictionary so this conditional statement checks if 'product_id' key exists in 'self.basket'
+            del self.basket[product_id] # This effectively removes the item identified by 'product_id'.
+            #if the type of this 'product_id' is an integer, when we try and run against the data that's stored in the basket session data, the id of the product is stored there as a string, so by the above line in this case we're trying to compare an integer with a string and that's not making the match, so we need to cast this integer as a string by "product_id = str(product.id)".(in our case but there's no need to be concerned 'cause the type of our 'product_id' is already a string.)
+            print(product_id) #If I use print here it means that when I reload the page and then delete an item, I can see the ID of the deleted product within the terminal.
+            print(type(product_id)) #<class 'str'>
+            self.save() #After deleting the item, this line calls a method named 'save()' on self. This method likely persists changes to the session data (e.g., updating a database or session storage) to ensure that the deletion is reflected in future interactions.
+
+    def save(self): #telling jango that we've made a change in our session data 
         self.session.modified = True
+    
+    # def get_item_total_price(self):
+    #     return (Decimal(item['price']) * item['qty'] for item in self.basket.values())
+    
+    def get_total_price(self):
+        return sum(Decimal(item['price']) * item['qty'] for item in self.basket.values())  
+    
+    def get_item_total_price(self, product_id):
+        """
+        Calculate the total price for a specific item in the basket.
+        
+        :param product_id: The ID of the product to calculate the total price for.
+        :return: The total price for the specified product.
+        """
+        # Check if the product is in the basket
+        if str(product_id) in self.basket:
+            item = self.basket[str(product_id)]
+            return Decimal(item['price']) * item['qty']
+        
+        # If the product is not in the basket, return 0
+        return Decimal('0.00')
 '''
 Explanation
 Session vs. Cookie:
@@ -204,4 +270,12 @@ print(shark2.name)  # Output: Stevie
 
 In this case, shark1 and shark2 have their own copies of the name and age instance variables.
 Instance variables are accessible throughout the methods of the class via the 'self' reference. They can be used to store data that is specific to an instance of the class.
+'''
+
+
+
+
+'''
+break down the '__iter__' method of the Basket class step by step using an example instance of the Basket class and your Product model. 
+(in WordPad)
 '''

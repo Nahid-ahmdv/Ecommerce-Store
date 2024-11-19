@@ -12,7 +12,7 @@
                 <img class="img-fluid rounded shadow" alt="{{ product.title }}" src="{{ product.image.url }}">
             </div>
             <div class="col-md-7 col-lg-7">
-                <h1 class="mb-3 h4 text-primary">{{ product.title }}</h1>
+                <h1 class="mb-3 h4 text-primary"><h2><b>{{ product.title }}</b></h2></h1>
                 <p class="lead text-muted"><span class="fw-bold">{{ product.author }}</span> (Author)</p>
                 
                 <div id="description-container">
@@ -30,13 +30,13 @@
                 <div class="card border-light mt-3">
                     <div class="card-body">
                         <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
-                            <div>Format: Hardback</div>
+                            <div><h4><b>Price:</b></h4></div>
                             <div><span class="h4 fw-bold text-success">£{{ product.price }}</span></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <label for="select">Qty</label>
-                                <select id="select" class="h6" style="width:50px;height:30px;">
+                                <select id="select" class="form-select d-inline-block w-auto" >
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -105,6 +105,18 @@ $(document).ready(function() {
                //Later, when you run the JavaScript code, it updates the content of that same <div> to whatever value is contained in 'json.qty'.
                //which means assigns the total_qty in {{ total_qty }} the value of 'json.qty'.
                //although we're not working on 'base.html', that will get rendered with this page (singleproduct.html) and because this will be loaded in the DOM, so we can access the id of an element within 'base.html' and change its inner HTML value.
+                    //The Document Object Model (DOM) is a crucial concept in web development that allows programmers to interact with HTML and XML documents.
+                    // What is the DOM?
+                    // Definition:
+                    // The DOM is an application programming interface (API) that represents the structure of a document as a tree of objects. It allows programs (like JavaScript) to access and manipulate the content, structure, and style of web pages dynamically.
+                    // Tree Structure:
+                    // The DOM represents a document as a hierarchical tree structure, where each element in the HTML or XML document is a node in the tree. For example, an HTML document might have a root node (the <html> element), with child nodes for <head>, <body>, and so on.
+                    // Manipulation:
+                    // Using the DOM, developers can:
+                    // Add: new elements to the document.
+                    // Modify: existing elements (e.g., changing text or attributes).
+                    // Delete: elements from the document.
+                    // This manipulation can happen in response to user actions (like clicks or key presses), allowing for dynamic web applications.
             },
             error: function (xhr, errmsg, err) {}
         });
@@ -112,7 +124,7 @@ $(document).ready(function() {
 </script>
 <script>
     //To add an effect when the button is clicked, you can use jQuery to create visual feedback for the user:
-    $(document).on('click', '#add-button', function (e) {
+    $(document).on('click', '#add-button', function (e) { //'#add-button' refers to the class, '.add-button' refers to the id.
         e.preventDefault();
     
         // Change button color
