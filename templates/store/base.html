@@ -15,9 +15,26 @@
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'basket/css/basket.css' %}">
+    <!-- Include Bootstrap CSS --> 
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> 
+    
+    <!-- Include jQuery (required for Bootstrap's JavaScript plugins) --> 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> 
+    
+    <!-- Include Bootstrap JS --> 
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <nav class="navbar navbar-expand-lg" style="background-color: #e3fdf6;">
+
         <div class="container-fluid">
-            <a class="navbar-brand" href="/"><b>Shop</b></a>
+            <a class="navbar-brand" href="/">
+                <div class="icon-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-shop" viewBox="0 0 18 18">
+                        <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.37 2.37 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0M1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5M4 15h3v-5H4zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zm3 0h-2v3h2z"/>
+                      </svg>
+                </div>
+            </a>
             <!--slash '/' is referring to the root directory of my server-->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -25,12 +42,15 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
                     <!--drop-down menu for categories-->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        <a class="nav-link dropdown-toggle post-title" href="#" id="navbarDropdown" role="button"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Categories
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                            </svg>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{% url "store:product_all" %}">All</a></li>
@@ -52,16 +72,51 @@
                     <!--here 'h' is basically the name of the parameter that's gonna be utilized in the url to make a get request-->
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                 </form>
+                {% if user.is_authenticated %}
+                <form action="{% url 'account:logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-success my-2 my-sm-0" style="margin-left: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                             class="bi bi-door-closed" viewBox="0 0 16 16">
+                            <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z"/>
+                            <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+                        </svg>
+                        <span class="fs15 fw500">Logout</span>
+                    </button>
+                </form> <!--we can't use an anchor (<a>) tag for the logout button. When you click this link, it sends a GET request to '/account/logout/', which is not allowed by the 'LogoutView'. The 'LogoutView' expects a POST request to log the user out.
+                    To resolve this issue, you need to change the logout button to submit a POST request instead of using an anchor tag. You can do this by wrapping the button in a <form> element.
+                    -->
+                {% else %}
+                <a type="button" role="button" href="{% url "account:login" %}"
+                class="btn btn-outline-success my-2 my-sm-0" style="margin-left: 20px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                        class="bi bi-door-closed" viewBox="0 0 16 16">
+                        <path
+                            d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z" />
+                        <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z" />
+                    </svg>
+                    <span class="fs15 fw500">Login</span>
+                </a>                
+                {% endif %}
 
+                <a type="button" role="button" href=""
+                class="btn btn-outline-success my-2 my-sm-0" style="margin-left: 20px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                        class="bi bi-person" viewBox="0 0 16 16">
+                        <path
+                            d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
+                    </svg>
+                Account
+                </a>
 
 
                 <a type="button" role="button" href="{% url 'basket:basket_summary' %}"
-                    class="btn btn-outline-success my-2 my-sm-0" style="margin-left: 20px;">
+                    class="btn btn-outline-success my-2 my-sm-0 " style="margin-left: 20px;">
                     <!--We're asking Django to look for the 'app_name' that is equal to 'basket' and then we're asking it to look for the url (link) named 'basket_summary'. So it's just basically going to generate this url, based on this path, for me.-->
 
-                    {% with total_qty=basket|length %}  <!--The 'basket' here is coming from the context_processor. that 'length' is essentially gonna call the '__len__' method in basket.py-->
+                    {% with total_qty=basket|length %}  <!--The 'basket' here is coming from the 'context_processor'. that 'length' is essentially gonna call the '__len__' method in basket.py-->
                     <!--In Django templates, the 'length' filter is used to get the number of items in a collection, such as a list or a dictionary. When you apply the 'length' filter to an object, Django checks if that object has a '__len__()' method defined.-->
-                    <div id="basket-qty" class="d-inline-flex">
+                    <div id="basket-qty" class="d-inline-flex circle">
                         <!--This class puts all the div's subsequent elements in a row-->
                         {% if total_qty > 0 %}
                         {{ total_qty }}
@@ -83,6 +138,14 @@
         </div>
     </nav>
     <style>
+        .icon-container {
+            display: inline-block; /* Ensures the icon is treated as inline */
+            margin-right:10px; /* Adjust this value for desired spacing */
+        }
+
+        .navbar-brand {
+            margin-left:30px; /* Adjust this value for desired spacing */
+        }
         .card {
             transition: box-shadow 0.3s;
             /* Optional: smooth shadow transition */
@@ -147,6 +210,27 @@
         #toggle-description:hover {
             text-shadow: 1px 0 0 currentColor;
         }
+        .footera {
+            transition: all 0.3s ease; /* Smooth transition for the hover effect */
+        }
+
+        .footera:hover {
+            font-size: 1.1em; /* Increase size slightly */
+            color: #555; /* Change to a darker color */
+        }
+        .circle {
+            display: inline-flex; /* Use inline-flex for better centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            width: 20px; /* Adjust size as needed */
+            height: 20px; /* Adjust size as needed */
+            border-radius: 50%;
+            background-color: red;
+            color: white; /* Text color */
+            text-align: center;
+            margin-right: 1px; /* Adjust spacing to prevent overlap */
+            font-size: 13px; /* Adjust font size if necessary */
+        }     
     </style>
 </head>
 
@@ -154,6 +238,55 @@
     {% block content %}
 
     {% endblock %}
+    <footer class="container py-5 footer">
+        <hr>
+        <div class="row pt-4">
+            <div class="col-12 col-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-shop" viewBox="0 0 18 18">
+                    <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.37 2.37 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0M1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5M4 15h3v-5H4zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zm3 0h-2v3h2z"/>
+                  </svg>
+                <small class="d-block mb-3 text-muted">&copy; 2024-2028</small>
+            </div>
+            <div class="col-6 col-md fs15">
+                <h5>Features</h5>
+                <ul class="list-unstyled">
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Cool stuff</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Random feature</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Team feature</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Stuff for developers</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Another one</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Last time</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md fs15">
+                <h5>Resources</h5>
+                <ul class="list-unstyled">
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Resource name</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Resource</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Another resource</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Final resource</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md fs15">
+                <h5>Resources</h5>
+                <ul class="list-unstyled">
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Business</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Education</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Government</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Gaming</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md">
+                <h5>About</h5>
+                <ul class="list-unstyled">
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Team</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Locations</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Privacy</a></li>
+                    <li><a class="link-secondary text-decoration-none footera" href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

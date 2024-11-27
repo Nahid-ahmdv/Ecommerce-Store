@@ -1,24 +1,67 @@
 <!--Here is where we're gonna see all the products that we've put in our basket in a nice little list before we can then purchase them.-->
-{% extends "../base.html" %}
+{% extends "../store/base.html" %}
 {% load static %}
 {% block title %}Basket Summary{% endblock %}
 
 {% block content %}
-<main class="pt-5">
-    <div class="container">
-      <h1 class="h5">Shopping basket</h1>
-      {% for item in basket %} <!--This line automatically calls the '__iter__' method of 'Basket' class.--><!--We're not iterating over the actual basket session data here; we want to iterate over the items that are in the basket—the actual data from the database. Remember, in the session data, we're recording and storing the ID of each product that is in the database. In our session data, we're storing only the ID of each product (not its other attributes).
-      What we need to do is take the session data, look at all the IDs of the products we've stored, and extract from the 'Product' database all the product instances corresponding to those IDs. We made a copy of the original basket, and to that copy, we've added a reference by a key named 'product' to the product instance that has an ID equal to what we have stored in our original basket.-->
-      <!--an example of that copied 'basket' at final: {'skey': {'8': {'price': 15.99, 'qty': 4, 'product': product8, 'total_price':63.96}, '7': {'price': 12.99, 'qty': 3, 'product': product7, 'total_price':38.97}, '4': {'price': 13.99, 'qty': 1, 'product': product4, 'total_price':13.99}}} where 'product8' is an instance of 'Product' class with id=8.-->
-      {% with product=item.product %}<!--Each 'item' in the loop is a dictionary that contains keys like 'price', 'gty', and 'product'.and item itself is a str that is equal to just the key of each item in the basket like '8', '7', and '4'-->
-      <!--When you use 'item.product', Django checks if 'item' has an attribute named 'product'. Since item is a dictionary, Django will look for the key 'product' within that dictionary.-->
-      <div data-index="{{ product.id }}" class="row mb-4 border rounded shadow-sm product-item">
-        <div class="col-md-3 col-lg-2 order-md-first bg-light text-center p-3">
-            <div class="photo-container">
-                <img class="img-fluid rounded shadow" alt="Product image" src="{{ product.image.url }}">
-            </div>
+    <main class="pt-5">
+        <div class="container" style="max-width: 1000px">
+          <div class="col-12">
+            <h1 class="h2">Your Basket</h1>
+          </div>
+          <div class="col-12">
+            <p>Manage your <b>items</b> in your basket</p>
+          </div>
+          <hr />
         </div>
-        <div class="col-md-9 col-lg-10 ps-md-3 ps-lg-10">
+        <div class="container" style="max-width: 1000px">
+          
+          <div class="row g-3">
+            <div class="col-12 bg-light p-3 d-flex justify-content-between">
+              <div class="d-flex d-flex-inline">
+                <div class="pe-3">Order</div>
+                <div class="dropdown">
+                <a class="text-reset text-decoration-none dropdown-toggle post-title" href="#" role="link" id="dropdownLink" data-bs-toggle="dropdown" aria-expanded="false">
+                Shipping options
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                </a>
+      
+                <ul class="dropdown-menu" aria-labelledby="dropdownLink">
+                  <li class="dropdown-item small">Next day delivery</li>
+                  <li class="dropdown-item small">Premimum delivery</li>
+                </ul>
+                </div>
+              </div>
+              <div class="text-end">
+                
+                <div class="">Sub Total: <span class="fw-bold">£</span><div id="baskettotal" class="d-inline-flex fw-bold">{{basket.get_total_price}}</div></div>
+                <div id="">Shipping <span class="small">(Next day delivery)</span>: <span class="fw-bold">£11.50</span></div>
+                <div class="pt-2">Total to pay: <span class="fw-bold h5">£</span><span id="ttotal" class="fw-bold h5">{{basket.get_ttotal_price}}</span></div>
+                
+              </div>
+            </div>
+            <div class="col-md-5 col-lg-4 order-md-last p-0 order-3">
+                <div class="d-grid gap-2 ">
+                  <a role="button" href="" class="btn btn-success fw-bold" type="button">Checkout</a>
+                  <button class="btn btn-warning" type="button">Save for later</button>
+                </div>
+              </div>
+              
+            <div class="col-md-7 col-lg-8 p-0">
+                {% for item in basket %} <!--This line automatically calls the '__iter__' method of 'Basket' class.--><!--We're not iterating over the actual basket session data here; we want to iterate over the items that are in the basket—the actual data from the database. Remember, in the session data, we're recording and storing the ID of each product that is in the database. In our session data, we're storing only the ID of each product (not its other attributes).
+                What we need to do is take the session data, look at all the IDs of the products we've stored, and extract from the 'Product' database all the product instances corresponding to those IDs. We made a copy of the original basket, and to that copy, we've added a reference by a key named 'product' to the product instance that has an ID equal to what we have stored in our original basket.-->
+                <!--an example of that copied 'basket' at final: {'skey': {'8': {'price': 15.99, 'qty': 4, 'product': product8, 'total_price':63.96}, '7': {'price': 12.99, 'qty': 3, 'product': product7, 'total_price':38.97}, '4': {'price': 13.99, 'qty': 1, 'product': product4, 'total_price':13.99}}} where 'product8' is an instance of 'Product' class with id=8.-->
+                {% with product=item.product %}<!--Each 'item' in the loop is a dictionary that contains keys like 'price', 'gty', and 'product'.and item itself is a str that is equal to just the key of each item in the basket like '8', '7', and '4'-->
+                <!--When you use 'item.product', Django checks if 'item' has an attribute named 'product'. Since item is a dictionary, Django will look for the key 'product' within that dictionary.-->
+                <div data-index="{{ product.id }}" class="row mb-3 border-0 product-item">
+                    <div class="col-md-3 col-lg-2 order-md-first bg-light text-center p-3">
+                        <div class="photo-container">
+                            <img class="img-fluid rounded shadow" alt="Product image" src="{{ product.image.url }}">
+                        </div>
+                    </div>
+        <div class="col-md-9 col-lg-8 ps-md-3 ps-lg-10">
             <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-reset">
                 <span style="color: rgb(0, 21, 255);"><h1 class="h5 pt-2">{{ product.title }}</h1></span>
             </a>
@@ -28,7 +71,7 @@
                     <div class="col-6 text-end fw-bold">£<span id="total-price-{{ product.id }}" class="h6 fw-bold">{{ item.total_price }}</span></div>
                 </div>
             </div>
-            <div class="row p-3 border rounded">
+            <div class="border rounded mb-3 p-2">
                 <div class="col-12">
                     <label for="select{{ product.id }}">Qty</label>
                     <select id="select{{ product.id }}" class="form-select d-inline-block w-auto">
@@ -55,7 +98,7 @@
     {% endwith %}
     {% endfor %}
     <div class="col-12 text-end mt-4">
-        <h4 class="fw-bold">Total Price: £<span id="baskettotal" class="d-inline-flex">{{ basket.get_total_price }}</span></h4>
+        <!-- <h4 class="fw-bold">Total Price: £<span id="baskettotal" class="d-inline-flex">{{ basket.get_total_price }}</span></h4> -->
     </div>
 </div>
 </main>
@@ -98,6 +141,8 @@ $.ajax({
 
         // Update the overall baskettotal if needed
         $('#baskettotal').text(json.baskettotal);
+        ttotal = (parseFloat(json.baskettotal) + 11.50).toFixed(2);
+        document.getElementById("ttotal").innerHTML = ttotal;
     },
     error: function (xhr, errmsg, err) {}
 });
@@ -136,10 +181,18 @@ $.ajax({
             // The selector $('.product-item[data-index="' + prodid + '"]') uses jQuery to find a <div> with the class 'product-item' that also has a 'data-index' attribute matching the prodid (line 15, which is the div element that wraps around all of the attachments of an individual product that we added into our basket summary page).
             // This effectively identifies the specific product item in the DOM.
             // Action: The .remove() method removes this element from the DOM, meaning that it will no longer be displayed on the page.
-        document.getElementById("baskettotal").innerHTML = json.baskettotal; //It accesses an element with the ID baskettotal and sets its inner HTML to the new baskettotal value returned by the server in json.baskettotal.
-        document.getElementById("basket-qty").innerHTML = json.qty        
 
- 
+            if(json.qty == 0){
+            ttotal = 0
+            baskettotal = 0
+            }
+            else{
+            ttotal = (parseFloat(json.baskettotal) + 11.50).toFixed(2);
+            baskettotal = json.baskettotal
+            }            
+        document.getElementById("baskettotal").innerHTML = json.baskettotal; //It accesses an element with the ID baskettotal and sets its inner HTML to the new baskettotal value returned by the server in json.baskettotal.
+        document.getElementById("basket-qty").innerHTML = json.qty
+        document.getElementById("ttotal").innerHTML = ttotal 
     },
     error: function (xhr, errmsg, err) {}
 });

@@ -1,5 +1,6 @@
-from django.contrib.auth.models import \
-    User  # This is the user model that Django automatically builds.
+# from django.contrib.auth.models import \
+#     User  # This is the user model that Django automatically builds.
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
@@ -8,6 +9,8 @@ from django.urls import reverse
 class ProductManager(models.Manager): #This is a custom model manager, we made it because maybe we don't want to show some of the products that are unavailabe and we don't select them as active.
     def get_queryset(self):
         return super(ProductManager, self).get_queryset().filter(is_active=True)
+    
+
 class Category(models.Model): #we're extending from 'models.Model'. That's gonna provide us access to kind of the functionality that we're gonna need to build and describe a model.
     #things we need to record about a category:
     name = models.CharField(max_length=255, db_index=True) #the datatype of our 'name' field is character field. 'db_index=True' is used to create an index on that field in the database. 
@@ -50,7 +53,8 @@ class Product(models.Model):
         electronics.product.all()
     on_delete=models.CASCADE: This parameter specifies what should happen when the referenced category is deleted. The CASCADE option means that if a category is deleted, all associated products will also be deleted automatically. This helps maintain referential integrity in your database by ensuring there are no orphaned product records.
     '''
-    created_by = models.ForeignKey(User, related_name='product_creator', on_delete=models.CASCADE, default='admin') #I want to record who actually made that data so I made a foreign key to the Django default 'User' table. so we need to add 'User' table into our database, so we need to import that model in (line 2).
+    # created_by = models.ForeignKey(User, related_name='product_creator', on_delete=models.CASCADE, default='admin') #I want to record who actually made that data so I made a foreign key to the Django default 'User' table. so we need to add 'User' table into our database, so we need to import that model in (line 2).
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='product_creator')
     title = models.CharField(max_length=255) #The title of the product.
     author = models.CharField(max_length=255, default='admin') #The author of the book.
     description = models.TextField(blank=True)

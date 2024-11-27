@@ -1,0 +1,7 @@
+{% autoescape off %}
+Hi {{ user.user_name }}, <!-- in our view we passed over 'user' through that dictionary context, so in this line we just grabbed that information and add some information into it-->
+
+Your account has successfully created. Please click below link to activate your account:
+
+http://{{ domain }}{% url 'account:activate' uidb64=uid token=token %} <!--We want to link the user to the activation page-->
+{% endautoescape %}

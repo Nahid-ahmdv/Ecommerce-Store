@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'store',
     'basket',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -121,8 +122,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static")
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -132,3 +136,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/' #by this line, any media files can be accessed via URLs that start with '/media/'.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') #we're utilizing 'MEDIA_ROOT' while we're in development environment. we're gonna connect our base directory to the 'media' file to build the actual link to the 'media' folder so that Django can access the folder. by this line, all uploaded files will be saved in a directory named 'media' within your project's base directory.
 #these are two settings (the above two lines) that we need to configure to allow our 'media' folder to work locally.
+
+# Custom user model
+#by the three following lines we're telling django that we're utilizing this new user model called 'UserBase' instead of django default user model called 'User'.
+AUTH_USER_MODEL = 'account.UserBase'
+LOGIN_REDIRECT_URL = '/account/dashboard'
+LOGIN_URL = '/account/login/'
+
+# Email setting
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+#When you set 'EMAIL_BACKEND' to 'django.core.mail.backends.console.EmailBackend', you are instructing Django to use the console email backend. 
+# This backend does not send real emails; instead, it outputs the email content to the console (standard output).
+#This is particularly useful during development and testing because it allows developers to see the email content that would have been sent without actually sending any emails.

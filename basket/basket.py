@@ -159,6 +159,10 @@ class Basket():
     def get_total_price(self):
         return sum(Decimal(item['price']) * item['qty'] for item in self.basket.values())  
     
+    def get_ttotal_price(self):
+        return sum(Decimal(item['price']) * item['qty'] for item in self.basket.values()) + Decimal('11.50')
+         
+    
     def get_item_total_price(self, product_id):
         """
         Calculate the total price for a specific item in the basket.

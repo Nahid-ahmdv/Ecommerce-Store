@@ -12,7 +12,7 @@ app_name = 'basket' #same as the 'namespace' of the path referred to this direct
 
 def basket_summary(request): # This 'request' is an instance of 'HttpRequest' which contains the details of user request.
     basket = Basket(request) #to be able to grab the user's basket session data (remember we're instantiating the 'Baket' class here. In other word, an instance of the 'Basket' class is created using the incoming 'request'. This initializes the session and retrieves or creates the user's basket.)
-    return render(request, 'store/basket/summary.html', {'basket': basket}) #we're gonna create a new folder is 'templates/store' folder called 'basket' and inside that a page called 'summary.html'.
+    return render(request, 'basket/summary.html', {'basket': basket}) #we're gonna create a new folder is 'templates/store' folder called 'basket' and inside that a page called 'summary.html'.
 
 
 

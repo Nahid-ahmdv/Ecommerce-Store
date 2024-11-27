@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+html, body, p, div{
+    letter-spacing: -0.02px;
+    font-family: 'Roboto', sans-serif;
+}
+.fs12{
+    font-size: 12px;
+}
+.fs15{
+    font-size: 0.9375rem;
+}
+
+.fw300{
+    font-weight: 300;
+}
+.fw500{
+    font-weight: 500;
+}
+/* Bootstrap Over-ride */
+@media (min-width: 1000px){
+    .container{
+        max-width: 1200px;
+    }
+}
+@media (max-width: 1000px){
+    .container{
+        max-width: 100%;
+        padding:0 24px;
+    }
+}
+.dropdown-toggle::after {
+    display: none;
+}
+.dropdown-menu{
+    top:58px;
+    left:0px;
+    padding:10px;
+}
+
+.alert-primary{
+    background-color: #E4F1FF;
+}
+
+
+
+/* Navigation-Main*/
+
+/* xs */
+.logo {
+    width: 49px;
+    height: auto;
+}
+/* sm */
+@media (min-width: 768px) {
+    .logo {
+        width: 49px;
+    }
+}
+/* md */
+@media (min-width: 992px) {
+    .logo {
+        width: 60px;
+    }
+}
+/* lg */
+@media (min-width: 1200px) {
+    .logo {
+        width: 70px;
+    }
+}
+
+/* Footer */
+
+.footer > div > div > ul > li{
+    padding-bottom:8px;
+}
+.icon-container {
+    display: inline-block; /* Ensures the icon is treated as inline */
+    margin-right:10px; /* Adjust this value for desired spacing */
+}
+
+.navbar-brand {
+    margin-left:30px; /* Adjust this value for desired spacing */
+}
+.card {
+    transition: box-shadow 0.3s;
+    /* Optional: smooth shadow transition */
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Optional: add shadow on hover */
+}
+
+.post-title {
+    display: inline-block;
+    /* Allows the underline to be applied only to the text */
+    position: relative;
+    /* Needed for positioning the pseudo-element */
+    color: #333;
+    /* Text color */
+    text-decoration: none;
+    /* Remove default underline */
+}
+
+.post-title::after {
+    content: '';
+    /* Create an empty pseudo-element */
+    position: absolute;
+    /* Position it relative to the title */
+    width: 100%;
+    /* Full width of the text */
+    height: 2px;
+    /* Height of the underline */
+    background-color: #0087ca;
+    /* Color of the underline */
+    bottom: 0;
+    /* Position it at the bottom of the text */
+    left: 0;
+    /* Align it to the left */
+    transform: scaleX(0);
+    /* Start hidden */
+    transition: transform 0.3s ease;
+    /* Smooth transition for the effect */
+}
+
+.card:hover .post-title::after {
+    transform: scaleX(1);
+    /* Show underline on hover over the card */
+}
+
+.search-input {
+    margin-right: 5px;
+    /* Adjust the value as needed */
+}
+
+.d-none {
+    display: none;
+}
+
+#toggle-description {
+    text-decoration: none;
+    transition: text-shadow 0.2s ease;
+}
+
+#toggle-description:hover {
+    text-shadow: 1px 0 0 currentColor;
+}
+.footera {
+    transition: all 0.3s ease; /* Smooth transition for the hover effect */
+}
+
+.footera:hover {
+    font-size: 1.1em; /* Increase size slightly */
+    color: #555; /* Change to a darker color */
+}

@@ -1,0 +1,79 @@
+{% extends "../../store/base.html" %}
+{% block title %}Log-in{% endblock %}
+{% block content %}
+
+<style>
+    .container-fluid {
+        max-width: 100%;
+    }
+
+    .account-form input {
+        border: 2px solid #ccc;
+        height: calc(2em + .75rem + 2px);
+    }
+
+    .account-form input:focus {
+        border-color: #1497ff;
+        box-shadow: none;
+    }
+</style>
+<!-- now we're gonna set up the form (registration form or registerForm) -->
+<div class="container-fluid">
+    <div class="row no-gutter">
+        <div class="col-md-12">
+            <div class="login d-flex align-items-center py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-lg-7 mx-auto">
+                            <!-- adding the form -->
+                             <form class="account-form p-4 rounded col-lg-10 mx-auto" action="." method="post">
+                                <!--The action attribute in an HTML <form> tag specifies the URL to which the form data should be 
+                                    submitted when the user submits the form. It defines where the server-side processing of the form input will occur.-->
+                                <!--Assuming your registration form is served at a URL like http://example.com/register/, when you use action=".", submitting the form will send a POST request back to http://example.com/register/.-->
+                                <!-- action=".": It simplifies routing since you don't need to specify a separate endpoint for form submission.
+                                    After submitting, you can handle both displaying the form and processing any submitted data within the same view function.
+                                    In your view, you can check if the request method is POST and then process the submitted data accordingly. If it's a GET request, you can render an empty form.-->
+
+                                {% csrf_token %} <!--If we're going to send a form we're going to need to send this csrf_token, that just keeps things secure. it's mandatory, because we're not gonna be able to send the form back to our view without it. -->
+                                <h3 class="mb-2">Create an account</h3>
+                                <p class="mb-4">It's free and only takes a minute.</p>
+
+                                {% if form.errors %}
+                                <p>Please correct the following errors:</p>
+                                {% for field in form %}
+                                {% if field.errors %}
+                                <div class="alert alert-primary" role="alert">
+                                    {{ field.label }}: {{ field.errors|striptags }} <!--When you apply the striptags filter to a string, it scans the string for any HTML tags (e.g., <p>, <div>, <strong>) and removes them, returning only the plain text content.-->
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+
+                                <label>{{ form.user_name.label }}<span class="text-muted small">
+                                        (Required)</span></label>
+                                {{ form.user_name }} <!-- putting in the input for the user_name,Here we’re just asking Django to output the form input (in this case the username and then the email input field and then the password) so we don’t have access to the class there, it’s for us to add different classes in, so for example with bootstrap we want to add the input class or the class that styles the input box for example. We can’t do it here, we have to do it within the form. So that’s why we need to add widgets in our forms.-->
+                                <label>{{ form.email.label}}<span class="text-muted small">
+                                        (Required)</span></label>
+                                {{ form.email }}
+                                <label>{{ form.password.label}}<span class="text-muted mb-4">
+                                        </span></label>
+                                 <small class="form-text text-muted mb-4 small">
+                                    At least 8 characters and 1 digit
+                                </small>
+                                {{ form.password }}
+                                <label>{{ form.password2.label}}<span class="text-muted small">
+                                        (Required)</span></label>
+                                {{ form.password2 }}
+                                <button class="btn btn-primary btn-block py-2 mb-4 mt-5 fw500 w-100" type="submit">Register</button>
+                                <p class="text-center">
+                                    <a href="{% url "account:login" %}">Already have an account?</a>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

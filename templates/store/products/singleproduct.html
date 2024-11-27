@@ -43,7 +43,12 @@
                                     <option value="4">4</option>
                                 </select>
                             </div>
-                            <button type="button" id="add-button" value="{{product.id}}" class="btn btn-primary btn-sm">Add to Basket</button>
+                            <!-- <button type="button" id="add-button" value="{{product.id}}" class="btn btn-primary btn-sm">Add to Basket</button> -->
+
+                                <div class="d-grid gap-2 ">
+                                    <button type="button" id="add-button" value="{{product.id}}" class="btn btn-success fw500">Add to basket</button>
+                                    <button type="button" id="add-button" value="{{product.id}}" class="btn btn-secondary fw500">Add to Favorites</button>
+                                </div>
                         </div>
                     </div>
                 </div>
