@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'store',
     'basket',
     'account',
+    'checkout',
+    'orders',
+    # 'azbankgateways',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +120,51 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+
+
+# AZ_IRANIAN_BANK_GATEWAYS = {
+#     "GATEWAYS": {
+#         "ZARINPAL": {
+#             "MERCHANT_CODE": "58aed33f-be8d-43f0-be0e-261326de14f2",
+#             "SANDBOX": 1,  # 0 disable, 1 active
+#         },
+#     },
+#     "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
+#     "DEFAULT": "ZARINPAL",
+#     "CURRENCY": "IRT",  # اختیاری
+#     "TRACKING_CODE_QUERY_PARAM": "tc",  # اختیاری
+#     "TRACKING_CODE_LENGTH": 16, #شماره تراکنش # اختیاری 
+#     "SETTING_VALUE_READER_CLASS": "azbankgateways.readers.DefaultReader",  # اختیاری
+#     "BANK_PRIORITIES": [
+#     #     'ZARINPAL',
+#     #     # and so on ...
+#     ],  # اختیاری
+#     # "IS_SAFE_GET_GATEWAY_PAYMENT": False,  # اختیاری، بهتر است True بزارید.
+#     # "CUSTOM_APP": None,  # اختیاری
+# }
+
+# Disable secure SSL redirect in development
+SECURE_SSL_REDIRECT = False
+
+# Other security settings that may enforce HTTPS
+SECURE_PROXY_SSL_HEADER = None  # Disable if set
+SESSION_COOKIE_SECURE = False  # Disable in development
+CSRF_COOKIE_SECURE = False  # Disable in development
+
+
+SANDBOX = True
+MERCHANT = '31635d35-c719-497e-8657-543c3484a09d'
+
+
+# Basket session ID
+BASKET_SESSION_ID = 'skey'
+
+
+
+
+
 
 
 # Static files (CSS, JavaScript, Images)

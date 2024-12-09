@@ -1,0 +1,131 @@
+<!-- copied from the summary.html -->
+{% extends "../store/base.html" %}
+{% load static %}
+{% block title %}Delivery Options{%endblock %}
+{% block content %}
+<main class="pt-5">
+<div class="container">
+  <div class="col-12">
+    <h1 class="h2">Delivery Options</h1>
+  </div>
+  <div class="col-12">
+    <p>Select your preferred delivery option:</p>
+  </div>
+  <hr />
+</div>
+<!-- outputing the delivery options: -->
+<div class="container">
+    <!--output any messages on our page-->
+    {% if messages %}
+    <div class="alert alert-warning" alert-{{ message.tags }} role="alert">
+      {% for message in messages  %}
+        {{message|safe}}
+      {% endfor %}
+    </div>
+    {% endif %}
+      <div class="row g-3">
+        {% if deliveryoptions|length == 0 %}<!--If there are no delivery options (i.e., 'deliveryoptions' has a length of 0), the code inside this conditional block will be executed:-->
+        <div class="col-12">There are no delivery options <a href="{% url 'store:product_all' %}">Shop</a></div>
+        {% else %}
+        <div class="col-md-4 col-lg-4 order-md-last p-0 order-3"> <!--a section to put the items on the right hand side. -->
+          <div class="d-flex bd-highlight ms-0">
+            <div class="p-2 flex-grow-1 bd-highlight">Sub Total:</div>
+
+            <div class="p-2 bd-highlight"><span class="fw-bold h5">£</span><span id="sub_total"
+                class="fw-bold h5">{{basket.get_total_price}}</span></div>
+          </div>
+          <div class="d-flex bd-highlight">
+            <div class="p-2 flex-grow-1 bd-highlight">Delivery Cost:</div>
+            <div class="p-2 bd-highlight"><span class="fw-bold h5">£</span><span id="delivery_price"
+                class="fw-bold h5">{{basket.get_delivery_price}}</span></div>
+          </div>
+          <div class="d-flex bd-highlight">
+            <div class="p-2 flex-grow-1 bd-highlight">Total:</div>
+            <div class="p-2 bd-highlight"><span class="fw-bold h5">£</span><span id="total"
+                class="fw-bold h5">{{basket.get_ttotal_price}}</span></div>
+          </div>
+          
+          <a role="button" href="{% url "checkout:delivery_address" %}" class="btn btn-success fw-bold w-100"
+            type="button">Pay Securely</a>
+        </div>
+        <div class="col-md-7 col-lg-8"> <!--a section for the left hand side-->
+          
+          <!--We’re no going to grab the options inside the deliveryoptions (That’s the data that we sent across from the ‘deliveryoptions’ view.) here we just create a new card for each item-->
+          {% for option in deliveryoptions %}
+          <div class="card mb-3 border-1 rounded-0 product-item me-md-4" data-index="{{option.id}}">
+            <div class="row g-0">
+              <div class="col-md-2 ps-3 ps-md-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-truck mt-2"
+                  viewBox="0 0 16 16">
+                  <path
+                    d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+                </svg>
+              </div>
+              <div class="col-md-9 ps-md-1">
+                <div class="card-body p-1">
+                  <p class="card-text ps-2 mb-1 pt-1 fw-bold">{{option.delivery_name}}</p>
+                  <p class="card-text ps-2 pb-3">Your order should be delivered within {{option.delivery_timeframe}}.</p>
+                </div>
+              </div>
+              <!--radio button: We have got an option for the user to actually select so that we can then determine the Delivery Cost and the Total. And we will hook that up with AJAX so that we can get a value every time the user clicks on one of the delivery options.-->
+              <div class="col-md-1 ps-md-1">
+                <input class="align-middle h-100" type="radio" name="deliveryOption" id="{{option.id}}"
+                  value="{{option.id}}">
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <script>
+        //We’re looking for (trying to capture and detect a change on any of those radio buttons that we’ve created) the type radio (that’s what we have just set up in the picture above and the name deliveryOptions ). We’re using jQuery here:
+    //   $('input[type=radio][name=deliveryOption]').on('change', function(e) {
+    //     e.preventDefault();
+    $(document).ready(function() {
+        //To ensure that the selected radio button remains marked after a page refresh, we can utilize client-side storage options like Local Storage or Session Storage. These methods allow you to save the state of the radio button selection and restore it when the page loads again.
+        //Local Storage:it allows you to store data with no expiration time, meaning it will persist even after the browser is closed and reopened. Here’s how to implement this:
+        //Using Session Storage: If you prefer to use Session Storage, which clears when the browser tab is closed, you can follow similar steps:
+    
+    //I'm using Local Storage:
+
+    // Check if there's a saved selection in Local Storage:
+    const savedSelection = localStorage.getItem('selectedDeliveryOption'); //This line retrieves a value from the browser's Local Storage using the key 'selectedDeliveryOption'. If a user has previously selected a delivery option, this value will be stored.
+    if (savedSelection) {
+        // Set the radio button to checked based on saved selection
+        $('input[name="deliveryOption"][value="' + savedSelection + '"]').prop('checked', true); //If savedSelection is not null (meaning an option was previously selected), this line finds the radio button with the corresponding value and sets its checked property to true. This visually marks the radio button as selected when the page is refreshed.
+    }
+
+    // Event listener for radio button changes:
+    $('input[type=radio][name=deliveryOption]').on('change', function() {
+        // Save the selected value to Local Storage
+        localStorage.setItem('selectedDeliveryOption', $(this).val());
+        
+        // Optionally, perform your AJAX call here
+        $.ajax({
+          type: "POST", //AJAX requires a delivery method type which is gonna be 'POST' in this case. 
+          url: '{% url "checkout:basket_update_delivery" %}', //we're gonna send this information which is within 'data' (AJAX request), there.
+          //what we're gonna send across:
+          data: {
+            deliveryoption: $(this).val(), //We have selected a radio button, so the ‘$(‘input[type=radio][….’ line is referring to the radio button that user has selected,so the value that we’re collecting is the actual option.id (value=“{{ option.id }}”). So this is going to get the idea of the delivery option that user selected.
+            csrfmiddlewaretoken: "{{csrf_token}}",
+            action: "post",
+          },
+          //Now we’ve done the above lines we should be able to send data (AJAX request) to the ‘basket_update_delivery’ view within checkout app.
+
+          //returning from the 'basket_update_delivery' view:
+          success: function (json) {
+            document.getElementById("total").innerHTML = json.total;
+            document.getElementById("delivery_price").innerHTML = json.delivery_price;
+          },
+          //So now we’ve made the changes based upon successfully sending information to the backend and it’s been returned, we have updated the elements on our page.
+          error: function (xhr, errmsg, err) {},
+        });
+        
+      });
+    });
+    </script>
+</main>
+{% endblock %}

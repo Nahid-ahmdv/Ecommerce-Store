@@ -12,6 +12,44 @@ app_name = 'basket' #same as the 'namespace' of the path referred to this direct
 
 def basket_summary(request): # This 'request' is an instance of 'HttpRequest' which contains the details of user request.
     basket = Basket(request) #to be able to grab the user's basket session data (remember we're instantiating the 'Baket' class here. In other word, an instance of the 'Basket' class is created using the incoming 'request'. This initializes the session and retrieves or creates the user's basket.)
+    '''
+    In your view function 'basket_summary', the line basket = Basket(request) initializes an instance of the 'Basket' class, and this process involves checking the session data for the key 'skey'. Here’s a detailed breakdown of what happens:
+    Breakdown of basket = Basket(request)
+    Creating an Instance:
+    When you call 'Basket(request)', you are invoking the constructor (__init__ method) of the 'Basket' class, passing the current HTTP request object as an argument.
+    Session Access:
+    Inside the __init__ method of the 'Basket' class, you have:
+    python
+    self.session = request.session
+    basket = self.session.get('skey')
+
+    This retrieves the session data associated with the current request. The self.session.get('skey') line attempts to get the value associated with the key 'skey'. If 'skey' exists in the session, 'basket' will be set to its corresponding value (which is a dictionary). If it does not exist, 'basket' will be set to None.
+    Checking for Existence:
+    Next, you have:
+    python
+    if 'skey' not in request.session:
+        basket = self.session['skey'] = {}
+
+    This checks if 'skey' is present in the session data. If it is not found, it initializes an empty dictionary and assigns it to self.session['skey']. This means that if a user has not yet added anything to their basket, an empty dictionary will be created and stored under 'skey'.
+    Setting the Basket Attribute:
+    Finally, you have:
+    python
+    self.basket = basket
+
+    This line assigns the value of basket (which is either the existing dictionary from the session or a new empty dictionary) to the instance variable self.basket.
+    Summary in Your View
+    So, when you use:
+    python
+    def basket_summary(request):
+        basket = Basket(request)
+
+    The variable 'basket' will contain an instance of the 'Basket' class.
+    The attribute 'self.basket' within that instance will hold either:
+        The existing dictionary associated with 'skey', if it exists (representing items in the user's shopping basket).
+        An empty dictionary if 'skey' did not exist in session data prior to this point.
+    This structure allows you to manage and manipulate basket data easily throughout your application.
+    
+    '''
     return render(request, 'basket/summary.html', {'basket': basket}) #we're gonna create a new folder is 'templates/store' folder called 'basket' and inside that a page called 'summary.html'.
 
 

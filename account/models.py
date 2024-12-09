@@ -5,7 +5,7 @@
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin) 
 #We are using 'BaseUserManager' to create a custom user manager that overrides the default account management methods, such as those for creating normal users and superusers. By extending from 'AbstractBaseUser', we can define our own User model with custom fields and behaviors, allowing us to customize the authentication process according to our application's specific requirements.
 #When we create a new model in Django, we often want it to automatically include default permissions such as add, change, delete, and view. By inheriting from 'PermissionsMixin', our new model gains these built-in permission fields and methods. This mixin provides the necessary functionality to manage user permissions related to that model, allowing us to integrate seamlessly with Django’s permission framework.
-
+import uuid
 from django.db import models
 from django_countries.fields import CountryField #we used 'pip install django-countries' command and import 'CountryField'.
 from django.core.mail import send_mail
@@ -70,9 +70,9 @@ class UserBase(AbstractBaseUser, PermissionsMixin): #we're gonna build a complet
     country = CountryField()
     phone_number = models.CharField(max_length=11, blank=True)
     postcode = models.CharField(max_length=12, blank=True)
-    address_line_1 = models.CharField(max_length=150, blank=True)
-    address_line_2 = models.CharField(max_length=150, blank=True)
-    town_city = models.CharField(max_length=150, blank=True)
+    # address_line_1 = models.CharField(max_length=150, blank=True)
+    # address_line_2 = models.CharField(max_length=150, blank=True)
+    # town_city = models.CharField(max_length=150, blank=True)
     # User Status
     is_active = models.BooleanField(default=False) #we want to be able to disable a user instead of deleting their account. When a user sings up, they receive an email. When they click on that email their account will go active and then they can log in. So you can’t actually log in until the account is set to ‘is_active’, so we can use this field as a safeguard and deletion of the account.
     is_staff = models.BooleanField(default=False) #This is a critical part of user management in Django, controlling access to the admin interface. By defaulting to 'False', it ensures that only explicitly designated users can perform administrative tasks, thus enhancing security within your application.
@@ -107,3 +107,28 @@ class UserBase(AbstractBaseUser, PermissionsMixin): #we're gonna build a complet
         '''
     def __str__(self):
         return self.user_name
+    
+class Address(models.Model):
+    """
+    Address
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    customer = models.ForeignKey(UserBase, verbose_name=_("Customer"), on_delete=models.CASCADE)
+    full_name = models.CharField(_("Full Name"), max_length=150)
+    phone = models.CharField(_("Phone Number"), max_length=50)
+    postcode = models.CharField(_("Postcode"), max_length=50)
+    address_line = models.CharField(_("Address Line 1"), max_length=255)
+    address_line2 = models.CharField(_("Address Line 2"), max_length=255)
+    town_city = models.CharField(_("Town/City/State"), max_length=150)
+    delivery_instructions = models.CharField(_("Delivery Instructions"), max_length=255)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+    default = models.BooleanField(_("Default"), default=False)
+
+    class Meta:
+        verbose_name = "Address"
+        verbose_name_plural = "Addresses"
+
+    def __str__(self):
+        return "Address"

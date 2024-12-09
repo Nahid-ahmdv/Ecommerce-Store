@@ -7,7 +7,7 @@ because we need that information. When the user sends data from the browser, the
 and that data is the ‘request’ (the session information is inside of that ‘request’) so that we can grab the information inside of the ‘request’ and check the session if it exists and then return some data.
 '''
 def basket(request): #Here, a function named basket is defined, which takes one parameter, request. This parameter typically represents an HTTP request object, which contains information about the incoming request, including session data.
-    return {'basket': Basket(request)} #what is return is the value associated with 'basket' key which is whatever in the basket of the user (the instance variable that was defined within basket.py 'Basket' class).
+    return {'basket': Basket(request)} #what is return is the value associated with 'basket' key which is whatever in the basket of the user (the item in the user session data specified by 'skey' key. remember session data as a dictionary of key-value pairs) (the instance variable that was defined within basket.py 'Basket' class).
 '''
 Inside the function, it creates an instance of the 'Basket' class by passing the 'request' object to its constructor (__init__).
 The function returns a dictionary with a single key-value pair:

@@ -1,0 +1,77 @@
+{% extends "../store/base.html" %}
+{% load static %}
+{% block title %}Payment Successful{%endblock %}
+{% block content %}
+
+<main class="pt-5">
+    <div class="container">
+      <div class="col-12">
+    <h1 class="h2">Payment Successful!</h1>
+  </div>
+  <hr />
+  <div class="col-12">
+    <p>View all <a href="{% url 'account:user_orders'%}">orders</a></p>
+  </div>
+  <div class="col-12">
+    <h3>Order Summary:</h3>
+  </div>
+</div>
+<hr />
+ <div class="container">
+    {% if latest_order %}
+    <div class="row g-3 mb-4">
+        <div class="col-12 bg-light p-4 rounded shadow-sm d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <div class="pe-3 text-muted small">{{ latest_order.created|date:"F j, Y, g:i a" }}</div>
+                <div class="dropdown">
+                    <a class="text-reset text-decoration-none dropdown-toggle post-title" href="#" role="link" id="dropdownLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        Dispatched to
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownLink">
+                        <li class="dropdown-item small">{{ latest_order.full_name }}</li>
+                        <li class="dropdown-item small">{{ latest_order.address1 }}</li>
+                        <li class="dropdown-item small">{{ latest_order.address2 }}</li>
+                        <li class="dropdown-item small">{{ latest_order.postcode }}</li> <!-- Adjusted to match your field name -->
+                    </ul>
+                </div>
+            </div>
+            <div class="text-end fw-bold">
+                Total paid: <span class="text-success">£{{ latest_order.total_paid }}</span>
+            </div>
+        </div>
+    
+        <div class="col-md-5 col-lg-4 order-md-last p-0 mt-2">
+            <div class="d-grid gap-2">
+                <button class="btn btn-success" type="button">Problem with order</button>
+                <button class="btn btn-warning" type="button">Leave a review</button>
+            </div>
+        </div>
+    
+        <div class="col-md-7 col-lg-8 p-0 mt-2">
+            {% for item in latest_order.items.all %}
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="row g-0">
+                    <div class="col-md-2 d-none d-md-block">
+                        <img class="img-fluid rounded-start" alt="{{ item.product.name }}" src="{{ item.product.image.url }}">
+                    </div>
+                    <div class="col-md-10">
+                        <div class="card-body p-3">
+                            <a class="text-decoration-none text-dark" href="{{ item.product.get_absolute_url }}">
+                                <p class="card-text small">{{ item.product|title }}</p>
+                            </a>
+                            <p class="small text-muted">Quantity: {{ item.quantity }}</p> <!-- Display quantity -->
+                            <p class="small text-muted">Price: £{{ item.price }}</p> <!-- Display price -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

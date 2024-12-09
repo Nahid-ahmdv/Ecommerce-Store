@@ -1,8 +1,8 @@
 #This module is for being able to do CRUD operations on our basket session data (part of the user's session data which is stored uder 'skey' key and we called it user's basket), we're gonna use the methods of 'Basket' class in our views (for handling AJAX requests).
 from decimal import Decimal
-
+from django.conf import settings
 from store.models import Product
-
+from checkout.models import DeliveryOptions
 
 class Basket():
     """
@@ -11,6 +11,15 @@ class Basket():
     """
     #The class below will run once we instantiate this class and then we can access that 'basket' data in last line.
     def __init__(self, request): #This method is typically used to initialize an instance of a class. #when we create a new instance of this class, this function (method) is gonna be initialized and run. Thinking about my session; I want to have it so that when this gets initialized, the kind of session is checked to make sure there’s a session and then if a session doesn’t exist, this session will be created. And what I then want to do is call this potentially on every page the user goes to, so it doesn’t matter what page the user goes to the session will be created and prepared so they can then put any item they want inside of the basket.
+        '''
+        In your 'Basket' class:
+            Initialization (__init__):
+            When an instance of 'Basket' is created, it checks if 'skey' exists in 'request.session' (session data associated with that user who sent the request). If it does not exist, it initializes an empty dictionary for 'skey'.
+            The basket data is then stored in 'self.basket', allowing other methods (like 'add') to manipulate it.
+            (The existence of 'skey' in 'request.session' is checked using the session ID sent with each user request. If it doesn't exist, an empty dictionary is initialized.)
+        '''
+
+
         #We gonna use ‘self’ in all of the methods of a class. We’re kind of setting up these functions so that within this class other functions (methods) can access any of the other attributes within these functions.
         #this 'request' is an instance of the 'HTTPrequest' class that the user sends to the server, and inside of it there is lots of different types of data and we want to access that data so that we can check the request and access information within that request to make different decisions and to perform actions. So we’re bringing that into this function here and then what we’re going to do because this is the initialization function we can then make that available within all functions, so we only need to bring this once into this function (__init__).
         '''
@@ -30,7 +39,7 @@ class Basket():
             basket = self.session['skey'] = {} # we need to setup a new session named 'skey' and then we need to define what it equals (we need to define the data within it), so we're gonna use a dictionary.
         self.basket = basket #Finally, this line assigns the value of basket (which is either the existing basket or a new empty dictionary) to an instance variable called 'self.basket' which we just generated. This allows other methods in the class to access and manipulate the basket. (remember that 'basket' is gonna have (part of) the information about the user's session (that part of the information that is stored under the key 'skey')).
         '''
-        Both self.session and self.basket are prefixed with self, indicating that they are instance variables. This means each instance of the class will have its own session and basket.
+        Both 'self.session' and 'self.basket' are prefixed with self, indicating that they are instance variables. This means each instance of the class will have its own session and basket.
         Single Parameter:
             The constructor '__init__' only takes one parameter, 'request'. This is common in web frameworks (like Django) where the request object contains all necessary information about the current HTTP request, including session data.
             By passing just the 'request', you can access various attributes (like 'session') without needing to pass them as separate parameters (like def __init__(self, request, session):).
@@ -150,18 +159,43 @@ class Basket():
             print(type(product_id)) #<class 'str'>
             self.save() #After deleting the item, this line calls a method named 'save()' on self. This method likely persists changes to the session data (e.g., updating a database or session storage) to ensure that the deletion is reflected in future interactions.
 
+    def clear(self):
+        # Remove basket from session
+        del self.session[settings.BASKET_SESSION_ID]
+        del self.session["address"]
+        del self.session["purchase"]
+        self.save()
+    
     def save(self): #telling jango that we've made a change in our session data 
         self.session.modified = True
     
     # def get_item_total_price(self):
     #     return (Decimal(item['price']) * item['qty'] for item in self.basket.values())
     
-    def get_total_price(self):
+    def get_total_price(self): #get_subtotal_price
         return sum(Decimal(item['price']) * item['qty'] for item in self.basket.values())  
     
     def get_ttotal_price(self):
-        return sum(Decimal(item['price']) * item['qty'] for item in self.basket.values()) + Decimal('11.50')
+        # return sum(Decimal(item['price']) * item['qty'] for item in self.basket.values()) + Decimal('11.50')
+        newprice = 0.00
+        subtotal = sum(Decimal(item["price"]) * item["qty"] for item in self.basket.values())
+
+        if "purchase" in self.session:
+            newprice = DeliveryOptions.objects.get(id=self.session["purchase"]["delivery_id"]).delivery_price
+
+        total = subtotal + Decimal(newprice)
+        return total
+        
          
+    def get_delivery_price(self):
+        newprice = 0.00
+
+        if "purchase" in self.session: #'purchase' contains delivery information in the session.
+                       
+                       #this is a query which is going to run in (against) the 'DeliveryOptions' table. It's gonna get an item where the id equals the delivery id.
+            newprice = DeliveryOptions.objects.get(id=self.session["purchase"]["delivery_id"]).delivery_price
+
+        return newprice
     
     def get_item_total_price(self, product_id):
         """
@@ -177,6 +211,12 @@ class Basket():
         
         # If the product is not in the basket, return 0
         return Decimal('0.00')
+    
+
+    def basket_update_delivery(self, deliveryprice=0):
+        subtotal = sum(Decimal(item["price"]) * item["qty"] for item in self.basket.values())
+        total = subtotal + Decimal(deliveryprice)
+        return total
 '''
 Explanation
 Session vs. Cookie:

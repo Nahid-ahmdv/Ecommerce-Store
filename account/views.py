@@ -1,16 +1,17 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 #the two lines below involve functions from Django's utility modules that are used for encoding and decoding data, particularly in the context of handling strings and URLs. 
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-
+from django.urls import reverse
+from orders.models import Order
 # from orders.views import user_orders
-from .forms import RegistrationForm, UserEditForm
-from .models import UserBase
+from .forms import RegistrationForm, UserEditForm, UserAddressForm
+from .models import Address, UserBase
 from .tokens import account_activation_token
 from django.contrib import messages
 # Create your views here.
@@ -98,8 +99,9 @@ force_text(...):
 
 @login_required #that is gonna check the user is logged in or not, and then if they're logged in it's gonna allow them access to this (dashboard) page.
 def dashboard(request):
+    orders = user_orders(request)
     return render(request,
-                  'account/dashboard/dashboard.html',
+                  'account/dashboard/dashboard.html', {orders : 'orders'}
                 )
 
 
@@ -130,3 +132,77 @@ def delete_user(request):
     user.save()
     logout(request)
     return redirect('account:delete_confirmation') #so we need another url (endpoint) for 'delete confirmation' page.
+
+# Addresses
+
+
+@login_required
+def view_address(request):
+    addresses = Address.objects.filter(customer=request.user)
+    return render(request, "account/dashboard/addresses.html", {"addresses": addresses})
+
+
+@login_required
+def add_address(request):
+    if request.method == "POST":
+        address_form = UserAddressForm(data=request.POST)
+        if address_form.is_valid():
+            address_form = address_form.save(commit=False)
+            address_form.customer = request.user
+            address_form.save()
+            return HttpResponseRedirect(reverse("account:addresses"))
+    else:
+        address_form = UserAddressForm()
+    return render(request, "account/dashboard/edit_addresses.html", {"form": address_form})
+
+
+@login_required
+def edit_address(request, id):
+    if request.method == "POST":
+        address = Address.objects.get(pk=id, customer=request.user)
+        address_form = UserAddressForm(instance=address, data=request.POST)
+        if address_form.is_valid():
+            address_form.save()
+            return HttpResponseRedirect(reverse("account:addresses"))
+    else:
+        address = Address.objects.get(pk=id, customer=request.user)
+        address_form = UserAddressForm(instance=address)
+    return render(request, "account/dashboard/edit_addresses.html", {"form": address_form})
+
+
+@login_required
+def delete_address(request, id):
+    address = Address.objects.filter(pk=id, customer=request.user).delete()
+    return redirect("account:addresses")
+
+
+@login_required
+#What we want to do here is we want to set it so that if we come from the page where we click the button instead of 
+# the normal dashboard view we want to capture the fact we’ve come from that page and then send them back to that page 
+# when they press the button instead of redirecting them to “account :addresses”. We’re just going to setup a redirect based upon where the person has come from. 
+# For this purpose we’re gonna collect the previous url
+def set_default(request, id):
+    Address.objects.filter(customer=request.user, default=True).update(default=False)
+    Address.objects.filter(pk=id, customer=request.user).update(default=True)
+     
+    #set up a redirect based upon where the person has come from:
+    previous_url = request.META.get("HTTP_REFERER") #This is gonna be the link back to the page we’re on currently. This is the address of where the user came from to get to this page. We’re gonna look inside of that if the word “delivery_address” is in it we redirect the user back that page (back to (“checkout:delivery_address”))
+
+    if "delivery_address" in previous_url:
+        return redirect("checkout:delivery_address")
+
+    return redirect("account:addresses")
+
+
+@login_required
+def user_orders(request):
+    user_id = request.user.id
+    orders = Order.objects.filter(user_id=user_id).filter(billing_status=True)
+    return render(request, "account/dashboard/user_orders.html", {"orders": orders})
+
+# @login_required
+# def user_latest_order(request):
+#     # Get the latest order for the logged-in user
+#     latest_order = Order.objects.filter(user=request.user).order_by('-created').first()  # Get the most recent order
+
+#     return render(request, 'checkout/payment_successful.html', {'latest_order': latest_order})

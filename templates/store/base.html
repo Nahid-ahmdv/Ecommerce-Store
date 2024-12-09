@@ -5,6 +5,7 @@
 <html lang="en">
 
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--را AJAX را لود کنیم و بعد در پایین jquery این اسکریپت را بالا نوشتیم برای اینکه احتیاج داریم اول-->
@@ -20,8 +21,7 @@
     <!-- Include Bootstrap CSS --> 
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> 
     
-    <!-- Include jQuery (required for Bootstrap's JavaScript plugins) --> 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> 
+
     
     <!-- Include Bootstrap JS --> 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -99,7 +99,7 @@
                 </a>                
                 {% endif %}
 
-                <a type="button" role="button" href=""
+                <a type="button" role="button" href="{% url 'account:dashboard' %}"
                 class="btn btn-outline-success my-2 my-sm-0" style="margin-left: 20px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                         class="bi bi-person" viewBox="0 0 16 16">
