@@ -1,5 +1,5 @@
 {% extends "../../store/base.html" %} {% load static %}
-{% block title %}Edit Addresses{% endblock %}
+{% block title %}Edit addresses{% endblock %}
 
 {% block content %}
 <main class="pt-5">
@@ -38,7 +38,7 @@
 function submitForm() {
    var form = document.getElementsByName('address_form')[0];
    form.submit(); // Submit the form
-   form.reset();  // Reset all form data
+   form.reset();  // Reset all form data //If we press “back” after we’ve submitted the form, then all the data would be gone from the form so it would be reset.
    return false; // Prevent page refresh
 }
 </script>

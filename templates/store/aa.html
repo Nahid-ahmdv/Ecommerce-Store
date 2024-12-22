@@ -1,0 +1,73 @@
+<form class="d-flex my-2 my-lg-0" action="/search/" method="get">
+    <!--ما را به صفحه سرچ میفرسد-->
+    <input class="form-control mr-sm-2 search-input" name="h" type="search" placeholder="Search" aria-label="Search"
+     required>
+    <!--here 'h' is basically the name of the parameter that's gonna be utilized in the url to make a get request-->
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+   </form>
+    {% if user.is_authenticated %}
+    <form action="{% url 'account:logout' %}" method="post" style="display: inline;">
+     {% csrf_token %}
+     <button type="submit" class="btn btn-outline-success my-2 my-sm-0" style="margin-left: 20px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-door-closed"
+       viewBox="0 0 16 16">
+       <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z" />
+       <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z" />
+      </svg>
+      <span class="fs15 fw500">Logout</span>
+     </button>
+    </form>
+    <!--we can't use an anchor (<a>) tag for the logout button. When you click this link, it sends a GET request to '/account/logout/', which is not allowed by the 'LogoutView'. The 'LogoutView' expects a POST request to log the user out.
+                    To resolve this issue, you need to change the logout button to submit a POST request instead of using an anchor tag. You can do this by wrapping the button in a <form> element.
+                    -->
+    {% else %}
+    <a type="button" role="button" href="{% url "account:login" %}" class="btn btn-outline-success my-2 my-sm-0"
+     style="margin-left: 20px;">
+     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-door-closed"
+      viewBox="0 0 16 16">
+      <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z" />
+      <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z" />
+     </svg>
+     <span class="fs15 fw500">Login</span>
+    </a>
+    {% endif %}
+
+    <a type="button" role="button" href="{% url 'account:dashboard' %}" class="btn btn-outline-success my-2 my-sm-0"
+     style="margin-left: 20px;">
+     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person"
+      viewBox="0 0 16 16">
+      <path
+       d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
+     </svg>
+     Account
+    </a>
+
+
+    <a type="button" role="button" href="{% url 'basket:basket_summary' %}"
+     class="btn btn-outline-success my-2 my-sm-0 " style="margin-left: 20px;">
+     <!--We're asking Django to look for the 'app_name' that is equal to 'basket' and then we're asking it to look for the url (link) named 'basket_summary'. So it's just basically going to generate this url, based on this path, for me.-->
+
+     {% with total_qty=basket|length %}
+     <!--The 'basket' here is coming from the 'context_processor'. that 'length' is essentially gonna call the '__len__' method in basket.py-->
+     <!--In Django templates, the 'length' filter is used to get the number of items in a collection, such as a list or a dictionary. When you apply the 'length' filter to an object, Django checks if that object has a '__len__()' method defined.-->
+     <div id="basket-qty" class="d-inline-flex circle">
+      <!--This class puts all the div's subsequent elements in a row-->
+      {% if total_qty > 0 %}
+      {{ total_qty }}
+      {% else %}
+      0
+      {% endif %}
+     </div>
+     {% endwith %}
+
+     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-basket-fill"
+      viewBox="0 0 16 16">
+      <path
+       d="M5.071 1.243a.5.5 0 0 1 .858.514L3.383 6h9.234L10.07 1.757a.5.5 0 1 1 .858-.514L13.783 6H15.5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 6h1.717zM3.5 10.5a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0z" />
+     </svg>
+     Basket
+    </a>
+
+   </div>
+  </div>
+ </nav>

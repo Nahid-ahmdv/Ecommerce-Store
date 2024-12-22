@@ -7,6 +7,13 @@
 {% block content %}
 <div class="container my-5">
     <main>
+        {% if messages %}
+        <div class="alert alert-success" alert-{{ message.tags }}" role="alert">
+        {% for message in messages  %}
+        {{message|safe}} - <a href="{% url "account:wishlist" %}" class="alert-link">Your Wishlist</a>.
+        {% endfor %}
+        </div>
+        {% endif %}
         <div class="row g-4">
             <div class="col-md-5 col-lg-5 order-md-first">
                 <img class="img-fluid rounded shadow" alt="{{ product.title }}" src="{{ product.image.url }}">
@@ -47,7 +54,22 @@
 
                                 <div class="d-grid gap-2 ">
                                     <button type="button" id="add-button" value="{{product.id}}" class="btn btn-success fw500">Add to basket</button>
-                                    <button type="button" id="add-button" value="{{product.id}}" class="btn btn-secondary fw500">Add to Favorites</button>
+                                    {% with request.user.user_wishlist.all as wishlist %}
+                                    <a href="{% url 'account:user_wishlist' product.id %}" 
+                                       class="btn btn-secondary fw500 wishlist-button" 
+                                       role="button" 
+                                       id="wishlist-button-{{ product.id }}" 
+                                       data-in-wishlist="{% if product in wishlist %}true{% else %}false{% endif %}">
+                                       {% if product in wishlist %}
+                                           Remove from Wish List
+                                       {% else %}
+                                           Add to Wish List
+                                       {% endif %}
+                                    </a>
+                                    {% endwith %}
+                                    
+                                 
+                                 <!--we also pass over the the id of the product, because we have <int:id> in the url 'path("wishlist/add_to_wishlist/<int:id>", views.add_to_wishlist, name="user_wishlist")'-->
                                 </div>
                         </div>
                     </div>
@@ -143,6 +165,8 @@ $(document).ready(function() {
         // Your AJAX code here...
     });
     </script>
+
+    
 {% endblock %}
 <!--
 Definition of Asynchronous in AJAX

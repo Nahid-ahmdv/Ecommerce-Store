@@ -105,6 +105,11 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True) #There might be some products that aren't actually active to buy, maybe for example you've run out of stock.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    users_wishlist = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="user_wishlist", blank=True) #a user can have multiple products in their wishlist, and each product can be included in the wishlists of multiple users.
+    #"Django ORM automatically creates a separate table in the database, typically named 'appname_product_users_fieldname' (in this case "store_product_users_wishlist"), which contains two foreign key fields (in addition to the 'id' field): 'product_id' referencing the Product model and 'user_id' referencing the User model (in this case 'userbase_id' because our customer model called 'UserBase').
+    #Django ORM automatically creates a table for a ManyToManyField. When you define a Many-to-Many relationship in Django, the ORM handles the creation of an intermediary table to manage the relationships between the two models involved.
+    
+    
     #we added the model managers to our model
     objects = models.Manager() #The default manager
     products = ProductManager() #The custom manager
@@ -121,3 +126,4 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+    

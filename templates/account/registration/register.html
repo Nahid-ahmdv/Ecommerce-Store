@@ -1,5 +1,5 @@
 {% extends "../../store/base.html" %}
-{% block title %}Log-in{% endblock %}
+{% block title %}Register Account{% endblock %}
 {% block content %}
 
 <style>
@@ -55,11 +55,8 @@
                                 <label>{{ form.email.label}}<span class="text-muted small">
                                         (Required)</span></label>
                                 {{ form.email }}
-                                <label>{{ form.password.label}}<span class="text-muted mb-4">
-                                        </span></label>
-                                 <small class="form-text text-muted mb-4 small">
-                                    At least 8 characters and 1 digit
-                                </small>
+                                <label>{{ form.password.label}}<span class="text-muted small">
+                                    (At least 8 characters and 1 digit)</span></label>
                                 {{ form.password }}
                                 <label>{{ form.password2.label}}<span class="text-muted small">
                                         (Required)</span></label>

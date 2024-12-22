@@ -1,0 +1,131 @@
+{%extends "./base.html" %}
+
+{%block title%}
+Search Page
+{%endblock%}
+{% block content %}
+<div class="container pt-5">
+    {% if h %} <!--If there is data in 'q' (if someone actually has typed in something into the input) then display all that information and all that posts that are returned from the search, else show the form-->
+    <h1>Products containing "{{ h }}"
+            {% if cgry %}
+            In category "{{ cgry }}":
+            {% endif %}
+    </h1>
+    <p>
+        {% with results.count as total_results %}
+        Found {{ total_results }} result{{ total_results|pluralize }}
+        {% endwith %}
+    </p>
+
+    <div class="album py-2 bg-light">
+        <div class="container">
+            <div class="row">
+    {% for product in results %}
+    <!-- <h5><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h5> -->
+    <div class="col-md-4 mb-4">
+        <a class="text-dark text-decoration-none" href="{{ product.get_absolute_url }}">
+            <div class="col">
+                <div class="card md-4 box-shadow">
+                 <a href="{{ product.get_absolute_url }}">
+                  <img class="img-fluid" alt="Responsive image" src="{{ product.image.url }}">
+                 </a>
+                 <div class="card-body">
+                  <p class="card-text">
+                   <a class="text-dark text-decoration-none" href="{{ product.get_absolute_url }}">
+                    <h2 style="font-size:18px; font-weight:bold;">{{ product.title }}</h2>
+                   </a>
+                  </p>
+                  <div class="fw-bold text-success">£{{product.price}}</div>
+                 </div>
+                </div>
+               </div>
+        </a>
+    </div>
+    {% empty %} <!--if there isn't anything returned, lt's just gonna say there are no results for your query.-->
+    <p>There are no results for your query.</p>
+    {% endfor %}
+    <p><a href="{% url "store:product_search" %}" class="btn btn-primary my-1" role="button" aria-disabled="true">New Search</a></p>
+    {% else %}
+    <h1 class="my-4">Search for products</h1>
+    <form class="dropdown" method="get"> <!--we're gonna be utilizing the method 'get' to send the data or query data that someone types into the input field to search for an item by 'get'-->
+        <!-- {{ form.as_p }} this gonna create a loop and loop out all the items (fields) that we request (in this case according to our form 'h' and 'cgry' fields). what we can also do is we can select individual components to output. for example in this case we have two inputs ('h' and 'cgry'), and instead of {{ form.as_p}} if we write {{ form.h }} or {{ form.cgry }} only 'h' or 'cgry' field would be shown  -->
+        <!--That basically renders the form as a series of <p> tags with each p containing one field.-->
+        <!--The expression {{ form.as_p }} in your Django template is a convenient way to render a Django form as HTML, specifically wrapping each form field in <p> (paragraph) tags.-->
+        <!--نیاز داریم برای این دراپ داون unordered list هدف این بود که وقتی کاربر در قسمت سرچ دارد تایپ می‌کند لیستی از پیشنهادات را به صورت دراپ داون مشاهده کند، بنابراین به یک -->
+        {% csrf_token %} <!--we need to include this inside our form else you keep getting an error -->
+        {{ form.h }}
+        <ul class="dropdown-menu col-12 pl-2" role="menu" aria-labelledby="menu" id="list">
+            <!--Now we need to make the actual input field as the trigger to actually trigger this drop-down.to do that we go back into 'forms.py' and what we're gonna need to do is add a class inside of our 'h' item so that Bootstrap can pick this up as the actual item that we're gonna click on to make that drop-down appear. we need to add a new attribute called 'data-toggle' with a value equal to 'dropdown'-->
+        </ul>
+        {{ form.cgry }}
+        <input class="btn btn-primary my-1 mx-1" type="submit" value="search"> <!--so now the basic components of the form is being constructed we now gonna head over to the views and just set up the logic so that we can capture that data and then return the results to the template.in views we create a container for the results (a list)-->
+    </form>
+    {% endif %}
+</div>
+</div>
+</div>
+</div>
+<script>
+    //  an AJAX implementation that sends a POST request when a user types into the search input field (with the ID '#id_h'):
+    $(document).on('keyup', '#id_h', function (e) {  //The code listens for the 'keyup' event on an input field with the ID '#id_h'. This means that every time a user releases a key while typing in this input field, the function will execute.
+        e.preventDefault(); 
+        var minlength = 3; //The code checks if the length of the input value is at least 3 characters before sending an AJAX request. This helps reduce unnecessary requests to the server.
+        //برای بهینه کردن تعداد کوئری‌هایی که به دیتابیس می‌زنیم. اینجا مثلا می‌گیم اجازه بده تا حداقل 3 تا حرف تایپ بشه و بعد پیشنهادات را (که حاصل کوئری زدن به دیتابیسه) نشون بده
+        var results =[];
+            //This is a jQuery AJAX call that sends an asynchronous HTTP request to a server. 
+        if ($('#id_h').val().length >= minlength) {   //before we actually run the AJAX we can check if the minimum length of the value user has typed in is 3 or not. 
+            //AJAX POST Request: 
+            //The AJAX call is made using jQuery's $.ajax() method:
+            $.ajax({ // we create an AJAX POST request, simply by describing the type:'POST', so l'm gonna be utilizing 'POST', l'm gonna send the data across to the server utilizing 'POST',url:'' l need to define where l'm gonna send the data, data: {}, and then the actual data l want to send across.That's all l need to do to make a request (AJAX request). lf the item is successful and this data been returned we're then gonna return that data, that's gonna be returned in this variable called 'json' (you can change this to whatever you want, that's where the data is gonna reside that gets returned from the server) and then  
+                type: 'POST', //The 'type' parameter is set to 'POST', indicating that this is a POST request.
+                url:'{% url "store:product_search" %}', //we're gonna send this data to our view (our 'product_search' view, according to 'urls.py' file we can access that view via 'post_search'.) 
+                data:{
+                    ss: $('#id_h').val(),  //That is what l'm gonna send to the server. 'ss'is the current value of the input field ($('#id_h').val()), which represents the search string.
+                //$('#id_h').val(): This is a jQuery expression that retrieves the current value of the input field with the ID id_h.
+                //The $('#id_h') part selects the input element based on its ID.
+                //The '.val()' method gets the value of that input element, which could be any text entered by the user.
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(), //in order to get this working we're gonna need to include a csrf cross site request forgery value (Django is expecting a csrf token, so if we don't include this,this simply wouldn't work.)
+                    action: 'post' //This is basically a hook that we're gonna use once we start writing the view. we can query this action, so if this action doesn't exist then we won't run the query so we can utilize it in that manner. 
+                    },
+                success: function (json) {  //This function will be called if the AJAX request is successful. The response from the server would typically be passed as a parameter (json) to this function, allowing you to handle it appropriately.
+                    // document.getElementById("list").innerHTML = json.search_string //we're using innerHTML to replace items within our unordered list by id="list" with whatever we have returned from the database or view as a string (remember that the data is returned and is stored in this 'json'variable)  //when someone types in to search for items returns data from the database (search suggestions) that's basically gonna overwrite all these items in the unordered list with id = 'list'.
+                    // console.log(json.search_string)//را در صفحه وب می‌زنیم کارایی دارد inspect برای دیباگ کردن وقتی  //just to log the json and then search_string. just remember although we're storing the data in 'json' here, when we return the data we're actually storing it in the (reference of) 'search_string' so the data is inside of this 'search_string' reference here which is a property of the 'json' object returned by the server (view).
+                //بعد از دیدن نتیجه دو خط بالایی، کامنتشان کردیم و خطهای پایینی را نوشتم
+                //we want generate a loop, we want to loop through the data that's returned and just output the title.
+                    $.each(JSON.parse(json.search_string), function (i, item) {
+                //let's remember that we've returned the data as a string so we're gonna need to json.parse that so that we can format it so we can read it as json. so we go ahead and select what we want to format (in this case 'json.search_string'). we are using 'each()' it is essentially a 'for each' loop using Jquery.
+                //so we create this loop, l'm returning the 'i' and 'item' we just essentially make a reference point and the actual data will be in 'item' so we will be able to access the data from 'item'.
+                //so we're gonna loop through each 'item' that is returned and we're gonna take the 'item' and we're gonna utilize 'push' because for each item we're gonna update the variable called 'results'.
+                        //results.push(item.fields.title)
+                        results.push('<li class="mx-2 my-2 pl-2"><a style="text-decoration: none;" href="/products/' + item.fields.slug +'/">' + item.fields.title +'</a></li>')
+                    })
+                    if (!$(".show")[0]) {//if there is 'not' a class (element) called 'show', then we're gonna set a trigger on the 'menudd' and that's gonna actually trigger the drop-down to work// l'm using jquery to search my document for a class called 'show', if the dropdown doesn't exist there won't be a class called 'show' 
+                        $('.menudd').trigger('click')
+                    }
+
+                    document.getElementById("list").innerHTML = (!results.length) ? "No results match your query" : results.join(''); //'(!results.length)':This checks whether the 'results' array is empty. 'results.length' returns the number of elements in the 'results' array. The '!' operator negates this value, so if 'results.length' is '0' (indicating that the array is empty), '!results.length' evaluates to true.
+                         //Ternary Operator:The expression uses a ternary operator, which is a shorthand way to write an if-else statement.
+                        //The syntax (in javascript) is:
+                        //condition ? valueIfTrue : valueIfFalse;
+                
+                    //document.getElementById("list").innerHTML = results;  //all the data in 'results' array would have been loop through and placed inside of this array.
+                    //document.getElementById("list").innerHTML = results.join(''); //برای خلاص شدن از شر اون ویرگول بین آیتم‌های لیست دراپ داون
+                
+                },
+                error: function (xhr, errmsg, err) {//function (xhr, errmsg, err) { ... }: This function will be called if there is an error with the AJAX request. It provides parameters that can help diagnose what went wrong.
+                }
+            });
+    }})
+</script>
+{% endblock %}
+<!--
+success: function (json) { ... }:
+ This defines a callback function that is executed when the AJAX request is successful. The 'json' parameter represents the data returned from the server, which is expected to be in JSON format.
+document.getElementById("list").innerHTML = json.search_string;:
+ This line updates the inner HTML of an HTML element with the ID 'list'.
+ It sets the content of this element to the value of 'search_string', which is a property of the 'json' object returned by the server.
+ If 'json.search_string' contains a string or HTML content, it will replace whatever is currently inside the element with that value.
+console.log(json.search_string);:
+ This line logs the value of 'json.search_string' to the console.
+ This is useful for debugging purposes, allowing you to see what value was returned from the server and ensure that it is being processed correctly.
+-->

@@ -2,7 +2,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 #the two lines below involve functions from Django's utility modules that are used for encoding and decoding data, particularly in the context of handling strings and URLs. 
 from django.utils.encoding import force_bytes, force_str
@@ -14,6 +14,7 @@ from .forms import RegistrationForm, UserEditForm, UserAddressForm
 from .models import Address, UserBase
 from .tokens import account_activation_token
 from django.contrib import messages
+from store.models import Product
 # Create your views here.
 
 #When a user fills out a registration form and clicks submit button, the data is sent as part of an HTTP request to the server, 
@@ -59,8 +60,8 @@ def account_register(request):
             user.email_user(subject=subject, message=message) #Sends an email to the newly registered user with instructions on how to activate their account using the generated subject and message.
             
             #Response After Registration (after the email is sent):
-            return HttpResponse('registered succesfully and activation sent') #Returns a simple HTTP response indicating that registration was successful and an activation email has been sent.
-    
+            # return HttpResponse('registered succesfully and activation sent') #Returns a simple HTTP response indicating that registration was successful and an activation email has been sent.
+            return render(request, "account/registration/register_email_confirm.html", {"form": registerForm})
     
     #Handle GET Request:
     else:
@@ -138,44 +139,54 @@ def delete_user(request):
 
 @login_required
 def view_address(request):
-    addresses = Address.objects.filter(customer=request.user)
+    addresses = Address.objects.filter(customer=request.user) #When the user makes a request, we can collect the user id from that request. So when the user’s logged in what they’re going to have is a session in the background. 
+    # That session data is potentially going to hold the user id. So here we’re bringing in that request information and we’re collecting the user id from it.
     return render(request, "account/dashboard/addresses.html", {"addresses": addresses})
 
 
 @login_required
 def add_address(request):
+    #when the user has filled in the form and clicks on the 'Submit' button, they have sent a 'POST' request to this view, so we should capture it with an 'If' statement:
+    #if the user has submitted the form:
     if request.method == "POST":
-        address_form = UserAddressForm(data=request.POST)
-        if address_form.is_valid():
+        address_form = UserAddressForm(data=request.POST) #we're gonna take the data from the form and put it into this 'address_form' variable.
+        if address_form.is_valid(): #that is going to run the data against the database and check to make sure that it is valid (the data types are correct) in order to for the data to be entered into the database. 
             address_form = address_form.save(commit=False)
-            address_form.customer = request.user
+            address_form.customer = request.user #adding more information to the address_form: we add this field (one of the fields of 'Address' model) manually, so we take that from the request. The request is made by a user
             address_form.save()
-            return HttpResponseRedirect(reverse("account:addresses"))
+            return HttpResponseRedirect(reverse("account:addresses")) #The 'reverse' function in Django is used to generate URLs from view names.
+    #if the user hasn't submitted the form; it is just gonna show them the form:
     else:
         address_form = UserAddressForm()
     return render(request, "account/dashboard/edit_addresses.html", {"form": address_form})
 
 
 @login_required
-def edit_address(request, id):
+#this time (unlike 'add_address' view) we're taking in the 'id' (address id) as well (which is the name of the parameter 'id' in "addresses/edit/<slug:id>/") so that is the data which is in the url:
+def edit_address(request, id): #we're using that 'id' to run against the database to find the data
+    #allowing the user to save the updated address in the database:
     if request.method == "POST":
-        address = Address.objects.get(pk=id, customer=request.user)
-        address_form = UserAddressForm(instance=address, data=request.POST)
+        address = Address.objects.get(pk=id, customer=request.user) #get the data from the database
+        address_form = UserAddressForm(instance=address, data=request.POST) #get the submitted data
+        #we now know what address we want to edit because we collected the data from the database, we have got the 'instance' (old data) and 'data' (new data). now we want to apply that new data so we use (address_form.save()).
         if address_form.is_valid():
-            address_form.save()
+            address_form.save() #the address has been updated in the database.
             return HttpResponseRedirect(reverse("account:addresses"))
+        
+    #if we're not saving the data we just want to display the data: 
     else:
-        address = Address.objects.get(pk=id, customer=request.user)
-        address_form = UserAddressForm(instance=address)
+        address = Address.objects.get(pk=id, customer=request.user) #Despite getting the 'id' of the address, we also get the customer (id) so that every user can access their own addresses but not those of others. For example, a user cannot enter a random string and gain access to another user's address. finally what gets displayed on the form is the address that got returned (the data about the address that's returned from the database).
+        address_form = UserAddressForm(instance=address) #we're getting the form and injecting that data within 'address' variable
     return render(request, "account/dashboard/edit_addresses.html", {"form": address_form})
 
 
 @login_required
-def delete_address(request, id):
+def delete_address(request, id): #we're gonna take in the address id so we can run against the database to delete it, so we know which address we're going to delete.
     address = Address.objects.filter(pk=id, customer=request.user).delete()
     return redirect("account:addresses")
 
 
+#we want to allow the user to set a default address so that it just automaically appears when they go to purchase something 
 @login_required
 #What we want to do here is we want to set it so that if we come from the page where we click the button instead of 
 # the normal dashboard view we want to capture the fact we’ve come from that page and then send them back to that page 
@@ -188,7 +199,7 @@ def set_default(request, id):
     #set up a redirect based upon where the person has come from:
     previous_url = request.META.get("HTTP_REFERER") #This is gonna be the link back to the page we’re on currently. This is the address of where the user came from to get to this page. We’re gonna look inside of that if the word “delivery_address” is in it we redirect the user back that page (back to (“checkout:delivery_address”))
 
-    if "delivery_address" in previous_url:
+    if "delivery_address/" in previous_url:
         return redirect("checkout:delivery_address")
 
     return redirect("account:addresses")
@@ -206,3 +217,63 @@ def user_orders(request):
 #     latest_order = Order.objects.filter(user=request.user).order_by('-created').first()  # Get the most recent order
 
 #     return render(request, 'checkout/payment_successful.html', {'latest_order': latest_order})
+
+@login_required
+def wishlist(request):
+    products = Product.objects.filter(users_wishlist=request.user)
+    return render(request, "account/dashboard/user_wish_list.html", {"wishlist": products})
+
+
+@login_required #This decorator ensures that only authenticated users can access this view. If a user is not logged in and tries to access this view, they will be redirected to the login page.
+def add_to_wishlist(request, id):
+    #grab (collect) the item (prouct) (from the database):
+    product = get_object_or_404(Product, id=id) #This line retrieves a specific 'Product' instance from the database based on the provided 'id'. If the product does not exist, it raises a 404 error.
+    if product.users_wishlist.filter(id=request.user.id).exists(): #This checks if the currently logged-in user (identified by 'request.user.id') already has the specified product in their wishlist by querying the 'users_wishlist' ManyToManyField.
+        #when a user sends an HTTP request to the server, their session data is also sent along with that request. In Django, both the HTTP request and the session data are encapsulated in the request object that is passed to your view functions.
+        
+        product.users_wishlist.remove(request.user) 
+        messages.success(request, product.title + " has been removed from your WishList")
+        #If the user already has the product in their wishlist, it removes them from the 'users_wishlist' and sends a success message indicating that the product has been removed.
+    else:
+        product.users_wishlist.add(request.user)
+        messages.success(request, "Added " + product.title + " to your WishList")
+        #If the user does not have the product in their wishlist, it adds them to the users_wishlist and sends a success message indicating that the product has been added.
+    return HttpResponseRedirect(request.META["HTTP_REFERER"]) #Finally, it redirects the user back to the page they came from using 'HTTP_REFERER', which contains the URL of the previous page.
+'''
+Role of ManyToManyField:
+In this context, users_wishlist is defined as a ManyToManyField in your Product model:
+
+python
+users_wishlist = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="user_wishlist", blank=True)
+
+Purpose: This field allows multiple users to save multiple products in their wishlists. 
+Each user can have several products in their wishlist, and each product can be saved by multiple users.
+Intermediary Table: Django automatically creates an intermediary table to manage this relationship, 
+allowing efficient querying and management of which users have which products in their wishlists.
+'''
+
+'''
+when a user sends an HTTP request to the server, their session data is also sent along with that request. In Django, both the HTTP request and the session data are encapsulated in the request object that is passed to your view functions.
+Breakdown of the Concept
+1)HTTP Request:
+    . When a user interacts with a web application (e.g., by clicking a link or submitting a form), their browser sends an HTTP request to the server. This request contains various information such as:
+        . Request method (GET, POST, etc.)
+        . URL being requested
+        . Headers (including cookies)
+        . Any data submitted with the request (e.g., form data)
+2)Session Data:
+    . Django uses sessions to store information about the user across requests. This session data can include user-specific information like authentication status, user preferences, and other temporary data.
+    . The session data is typically stored on the server and is associated with a unique session ID that is sent to the client as a cookie.
+3)The request Object:
+    . In Django views, the request object provides access to both the HTTP request data and the session data. You can access session data through request.session.
+    For example:
+python
+def my_view(request):
+    # Accessing session data
+    user_id = request.session.get('user_id')
+    # Accessing other request data
+    if request.method == 'POST':
+        form_data = request.POST
+Summary
+In summary, when you refer to "request" in Django, it encompasses both the HTTP request sent by the user and any associated session data. This allows you to handle user interactions and maintain state across different requests effectively. 
+'''

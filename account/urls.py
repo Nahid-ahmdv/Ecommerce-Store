@@ -36,11 +36,14 @@ urlpatterns = [
          TemplateView.as_view(template_name="account/password_reset/reset_status.html"), name='password_reset_done'), #for showing 'Password Reset Success Check your email for instructions'.
     path('password_reset_complete/',
          TemplateView.as_view(template_name="account/password_reset/reset_status.html"), name='password_reset_complete'), #for showing 'Password Reset Completed! login'
-    path("addresses/", views.view_address, name="addresses"),
-    path("add_address/", views.add_address, name="add_address"),
-    path("addresses/edit/<slug:id>/", views.edit_address, name="edit_address"),
-    path("addresses/delete/<slug:id>/", views.delete_address, name="delete_address"),
+    path("addresses/", views.view_address, name="addresses"), #It is like a HomePage for the addresses.
+    path("add_address/", views.add_address, name="add_address"), #for this we need a form.
+    path("addresses/edit/<slug:id>/", views.edit_address, name="edit_address"), #when we edit we're going to pass in the id of the actuall address we want to edit into the view, so then we can run the query against that id and collect the right address to edit.
+    path("addresses/delete/<slug:id>/", views.delete_address, name="delete_address"), #We’re going to do the same type of thing here for deleting the address, so we’re gonna need to be able to identify what we want to delete so the view is going to bring up an address.
     path("addresses/set_default/<slug:id>/", views.set_default, name="set_default"),
     path("user_orders/", views.user_orders, name="user_orders"),
-#     path("user_latest_order/", views.user_latest_order, name="user_latest_order"),
+    # Wish List
+    path("wishlist", views.wishlist, name="wishlist"),
+    path("wishlist/add_to_wishlist/<int:id>", views.add_to_wishlist, name="user_wishlist"), 
+    #We need to capture the ID of the product the user clicked on to add it to their wishlist. When the user clicks the button, we'll pass the product ID from the frontend to the 'add_to_wishlist' view.
 ]

@@ -60,16 +60,16 @@ class CustomAccountManager(BaseUserManager): #we need to build our custom user m
 
 #custom user model:
 class UserBase(AbstractBaseUser, PermissionsMixin): #we're gonna build a completely new User model (table) for saving our users.
-
+    #the 'password' field comes from 'AbstractBaseUser' class and Django puts that in for us. so it our 'UserBase' table in our database we're gonna have the 'password' field automatically.
     email = models.EmailField(_('email address'), unique=True) #we're gonna define the 'email' field as the actual kind of login unique identifier.
     user_name = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=150, blank=True)
-    about = models.TextField(_(
-        'about'), max_length=500, blank=True)
+    # about = models.TextField(_(
+    #     'about'), max_length=500, blank=True)
     # Delivery details
-    country = CountryField()
-    phone_number = models.CharField(max_length=11, blank=True)
-    postcode = models.CharField(max_length=12, blank=True)
+    # country = CountryField()
+    # phone_number = models.CharField(max_length=11, blank=True)
+    # postcode = models.CharField(max_length=12, blank=True)
     # address_line_1 = models.CharField(max_length=150, blank=True)
     # address_line_2 = models.CharField(max_length=150, blank=True)
     # town_city = models.CharField(max_length=150, blank=True)
@@ -87,6 +87,7 @@ class UserBase(AbstractBaseUser, PermissionsMixin): #we're gonna build a complet
 
     class Meta:
         verbose_name = "Accounts" #Defines a singular, human-readable name for the model, which enhances clarity in user interfaces.
+        #In the actuall Admin Area our 'UserBase' table is going to be called 'Accounts'.
         verbose_name_plural = "Accounts" #Defines a plural name for the model, ensuring that it is correctly represented when displaying lists of instances.
 
     def email_user(self, subject, message): #The method 'email_user' in your custom user model is designed to send an email to the user. 
@@ -113,7 +114,7 @@ class Address(models.Model):
     Address
     """
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) #we're not gonna use the Django default 'id' field; we're going to be utilizing this UUID field
     customer = models.ForeignKey(UserBase, verbose_name=_("Customer"), on_delete=models.CASCADE)
     full_name = models.CharField(_("Full Name"), max_length=150)
     phone = models.CharField(_("Phone Number"), max_length=50)

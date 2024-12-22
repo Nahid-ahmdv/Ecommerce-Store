@@ -154,6 +154,7 @@ class UserAddressForm(forms.ModelForm):
         model = Address
         fields = ["full_name", "phone", "address_line", "address_line2", "town_city", "postcode"]
 
+    #add in some Bootstrap here:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["full_name"].widget.attrs.update(

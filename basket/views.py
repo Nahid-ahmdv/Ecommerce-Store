@@ -207,3 +207,4 @@ def basket_delete(request):
         })
         
         return response
+    

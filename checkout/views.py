@@ -5,7 +5,7 @@ from basket.basket import Basket
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from orders.models import Order, OrderItem
 from django.conf import settings
 from .models import DeliveryOptions
@@ -64,15 +64,20 @@ def delivery_address(request):
     addresses = Address.objects.filter(customer=request.user).order_by("-default") #.order_by("-default") is used to sort the queryset of addresses retrieved from the database based on the 'default' field of the Address model.
     #When using "-default", addresses that have default=True will appear first in the list because they are considered "higher" in sorting order compared to those with default=False.
 
-    
+        # Check if there are any addresses available
+    if addresses.exists():
+        first_address = addresses[0]  # Safely get the first address
     #Save address in user session data:
-    if "address" not in request.session: #The code checks if there is an "address" key in the session.
-        session["address"] = {"address_id": str(addresses[0].id)} #If it does not exist, it initializes it with a dictionary containing the ID of the first address (which is selected address) from the retrieved list (addresses.id). This assumes that there is at least one address available.
+        if "address" not in request.session: #The code checks if there is an "address" key in the session.
+            session["address"] = {"address_id": str(first_address.id)} #If it does not exist, it initializes it with a dictionary containing the ID of the first address (which is selected address) from the retrieved list (addresses.id). This assumes that there is at least one address available.
 
-    else: #If "address" already exists in the session, it updates the "address_id" with the ID of the first address (which is selected address) again.
-        session["address"]["address_id"] = str(addresses[0].id)
-        session.modified = True #This line indicates that the session data has been modified and should be saved back to the database.
-
+        else: #If "address" already exists in the session, it updates the "address_id" with the ID of the first address (which is selected address) again.
+            session["address"]["address_id"] = str(first_address.id)
+            session.modified = True #This line indicates that the session data has been modified and should be saved back to the database.
+    else:
+        # Handle case where no addresses exist (e.g., redirect or show a message)
+        messages.warning(request, "No delivery addresses found. Please add an address.")
+        return redirect('account:add_address')  # Replace with your desired view for adding an address
 
     return render(request, "checkout/delivery_address.html", {"addresses": addresses})
 

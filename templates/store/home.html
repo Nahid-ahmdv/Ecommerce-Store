@@ -4,31 +4,34 @@
 {% block content %}
 
 
-  <div class="album py-5 bg-light">
-    <div class="container">
+<div class="album py-5 bg-light">
+ <div class="container">
 
-      <div class="pb-3 h4">All Products</div>
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+  <div class="pb-3 h4">All Products</div>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
 
-        {% for product in products %} <!--The 'products' here is related to 'product_all' view in views.py-->
+   {% for product in products %}
+   <!--The 'products' here is related to 'product_all' view in views.py-->
 
-        <div class="col">
-          <div class="card md-4 box-shadow">
-            <a href="{{ product.get_absolute_url }}">
-                <img class="img-fluid" alt="Responsive image" src="{{ product.image.url }}">
-            </a>
-            <div class="card-body">
-              <p class="card-text">
-                <a class="text-dark text-decoration-none" href="{{ product.get_absolute_url }}"><h2 style="font-size:18px; font-weight:bold;">{{ product.title }}</h2></a>
-              </p>
-              <div class="fw-bold text-success">£{{product.price}}</div>
-            </div>
-          </div>
-        </div>
-
-        {% endfor %}
-
-      </div>
+   <div class="col">
+    <div class="card md-4 box-shadow">
+     <a href="{{ product.get_absolute_url }}">
+      <img class="img-fluid" alt="Responsive image" src="{{ product.image.url }}">
+     </a>
+     <div class="card-body">
+      <p class="card-text">
+       <a class="text-dark text-decoration-none" href="{{ product.get_absolute_url }}">
+        <h2 style="font-size:18px; font-weight:bold;">{{ product.title }}</h2>
+       </a>
+      </p>
+      <div class="fw-bold text-success">£{{product.price}}</div>
+     </div>
     </div>
+   </div>
+
+   {% endfor %}
+
   </div>
+ </div>
+</div>
 {% endblock %}
